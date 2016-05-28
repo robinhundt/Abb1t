@@ -2,11 +2,22 @@ import telepot
 import logging
 
 class Telegrambot:
-    def __init__(self, api_key, mods):
+    def __init__(self, api_key, mods_):
         self.api_key = api_key
-        self.mods = mods
         self.bot = telepot.Bot(self.api_key)
         logging.debug(self.bot.getMe())
+
+        self.mods=[]
+        for m in mods_:
+            exec("import mods.{}".format(m)) # totally insecure
+            logging.debug("exec mod=mods.{0}.{0}(self.bot)".format(m))
+            exec("mod=mods.{0}.{0}(self.bot)".format(m))
+            self.mods.append(locals()['mod'])
+            # if feedback from the mod is needed
+            # start a thread here, e.g.
+            # thread.start_new_thread(self.modHandling,(mod,))
+            # to use this, use queue_out in each mod
+
         self.bot.message_loop(self.recv)
         while True:
             pass
@@ -14,7 +25,12 @@ class Telegrambot:
 
     def recv(self,msg):
         logging.debug(msg)
-        
+        for m in self.mods:
+            m.enqueue(msg)
+
+
+
+
 
 
 def main(args):
@@ -54,6 +70,8 @@ def main(args):
 
     ### Start up ###
     bot=Telegrambot(api_key, mods)
+
+
 
 
 if __name__ == '__main__':
