@@ -1,5 +1,6 @@
 import telepot
 import logging
+from util.msg import Msg
 
 class Telegrambot:
     def __init__(self, api_key, mods_):
@@ -26,7 +27,7 @@ class Telegrambot:
     def recv(self,msg):
         logging.debug(msg)
         for m in self.mods:
-            m.enqueue(msg)
+            m.enqueue(Msg(msg))
 
 
 

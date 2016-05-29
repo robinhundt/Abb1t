@@ -19,6 +19,8 @@ class log(object):
         self.queue_in=Queue()
         #self.queue_out=Queue()
         thread.start_new_thread(self.run,())
+        #self.resttime=0
+        #self.lastcmd=0
         self.logdir="logs"
 
     def run(self):
@@ -28,10 +30,9 @@ class log(object):
                 os.mkdir(self.logdir)
             except:
                 pass # exists already
-            recv_id=msg['from']['id'] # will be the name of the gz
+            recv_id=msg.get_recv_id() # will be the name of the gz
             with gzip.open("{}.gz".format(os.path.join(self.logdir,str(recv_id))),"a") as fw:
-                print(msg)
-                fw.write("{}\n".format(json.dumps(msg)))
+                fw.write("{}\n".format(json.dumps(msg.raw_msg)))
 
     def enqueue(self,msg):
         self.queue_in.put(msg)
