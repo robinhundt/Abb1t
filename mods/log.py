@@ -23,8 +23,8 @@ class log(object):
                 os.mkdir(self.logdir)
             except:
                 pass # exists already
-            recv_id=msg.get_recv_id() # will be the name of the gz
-            with gzip.open("{}.gz".format(os.path.join(self.logdir,str(recv_id))),"at") as fw:
+            chat_id=msg.get_chat_id() # will be the name of the gz
+            with gzip.open("{}.gz".format(os.path.join(self.logdir,str(chat_id))),"at") as fw:
                 fw.write("{}\n".format(json.dumps(msg.raw_msg)))
 
     def enqueue(self,msg):
