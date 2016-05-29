@@ -1,14 +1,6 @@
 #essential
-try:
-    import thread #python2
-except ImportError:
-    import _thread as thread #python3
-try:
-    from Queue import * #python2
-except ImportError:
-    from queue import * #python3
-import time
-
+import _thread as thread
+from queue import *
 
 class curtime(object):
     def __init__(self, bot):

@@ -29,23 +29,14 @@ class Telegrambot:
         for m in self.mods:
             m.enqueue(Msg(msg))
 
-
-
-
-
-
 def main(args):
     ### Set debugging level ###
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
     else:
         logging.basicConfig(level=logging.WARNING)
-    
-    # the configparser depends on the python version...
-    try: 
-        import configparser #python3
-    except ImportError:
-        import ConfigParser as configparser #python2
+
+    import configparser #python3
 
     ### Reading out config file ###
     config = configparser.ConfigParser()
@@ -71,9 +62,6 @@ def main(args):
 
     ### Start up ###
     bot=Telegrambot(api_key, mods)
-
-
-
 
 if __name__ == '__main__':
     import argparse
