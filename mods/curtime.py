@@ -2,6 +2,9 @@
 import _thread as thread
 from queue import *
 
+#mod
+import time
+
 class curtime(object):
     def __init__(self, bot):
         self.bot = bot
