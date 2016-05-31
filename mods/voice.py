@@ -21,11 +21,10 @@ class voice:
             chat_id=msg.get_chat_id()
             if msg.get_text()[:len("/voice")]=="/voice" and len(msg.get_text().split(" "))>=2:
                 tts=msg.get_text().split(" ",1)[1].lower().replace("Ä","ae").replace("ä","ae").replace("Ü","ue").replace("ü","ue").replace("Ö","oe").replace("ö","oe").replace("ß","ss")
-                temporaryfile=tempfile.TemporaryFile()
-                gtts.gTTS(text=tts,lang="de").write_to_fp(temporaryfile)
-                temporaryfile.seek(0)
-                self.bot.sendAudio(chat_id,temporaryfile,title="Abb0tvoice")
-                temporaryfile.close()
+                with tempfile.TemporaryFile() as temporaryfile:
+                    gtts.gTTS(text=tts,lang="de").write_to_fp(temporaryfile)
+                    temporaryfile.seek(0)
+                    self.bot.sendAudio(chat_id,temporaryfile,title="Abb0tvoice")
 
     def enqueue(self,msg):
         self.queue_in.put(msg)
