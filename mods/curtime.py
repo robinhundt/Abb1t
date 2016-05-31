@@ -7,7 +7,6 @@ import time
 
 class curtime:
     def __init__(self, bot):
-        self.name="curtime"
         self.bot = bot
         self.queue_in=Queue()
         #self.queue_out=Queue()

@@ -9,7 +9,6 @@ import re
 
 class mensa:
     def __init__(self, bot):
-        self.name="mensa"
         self.bot = bot
         self.queue_in=Queue()
         #self.queue_out=Queue()

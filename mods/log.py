@@ -8,7 +8,6 @@ import json
 
 class log:
     def __init__(self, bot):
-        self.name="log"
         self.bot = bot
         self.queue_in=Queue()
         #self.queue_out=Queue()

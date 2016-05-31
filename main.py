@@ -37,7 +37,7 @@ class Telegrambot:
 
         if chat_id in self.whitelist:
             for m in self.mods:
-                if m.name not in self.whitelist[chat_id]:
+                if type(m).__name__ not in self.whitelist[chat_id]:
                     m.enqueue(util_msg)
 
         # whitelist set, but not empty
