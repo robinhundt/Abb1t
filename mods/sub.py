@@ -24,12 +24,12 @@ class sub:
                 try:
                     sub=content.split("<h1>")[1].split("</h1>")[0]
                     ingr=content.split("<h4>")[1].split("</h4>")[0]
-                    msg=sub # set it to sub only
+                    msg="*{}*".format(sub) # set it to sub only
                     if (sub!=ingr):
-                        msg="%s (%s)"%(sub,ingr) # add the ingredients on deviation
+                        msg="*{}* ({})".format(sub,ingr) # add the ingredients on deviation
                 except IndexError:
                     msg="parser broken or page down..." # error
-                self.bot.sendMessage(chat_id,msg)
+                self.bot.sendMessage(chat_id,msg,parse_mode="Markdown")
 
     def enqueue(self,msg):
         self.queue_in.put(msg)
