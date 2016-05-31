@@ -20,7 +20,7 @@ class curtime:
             msg=self.queue_in.get() # get() is blocking
             chat_id=msg.get_chat_id()
             if msg.get_text()=="/time":
-                self.bot.sendMessage(chat_id,"Current time is {}".format((time.strftime("%H:%M:%S"))))
+                self.bot.sendMessage(chat_id,"Current time is *{}*".format((time.strftime("%H:%M:%S"))),parse_mode="Markdown")
 
     def enqueue(self,msg):
         self.queue_in.put(msg)
