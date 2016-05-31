@@ -3,9 +3,10 @@ import logging
 from util.msg import Msg
 
 class Telegrambot:
-    def __init__(self, api_key, mods_):
+    def __init__(self, api_key, mods_, whitelist, overseer):
         self.api_key = api_key
         self.bot = telepot.Bot(self.api_key)
+        self.overseer = overseer
         logging.debug(self.bot.getMe())
 
         self.mods=[]
@@ -18,16 +19,45 @@ class Telegrambot:
             # start a thread here, e.g.
             # thread.start_new_thread(self.modHandling,(mod,))
             # to use this, use queue_out in each mod
+        import ast #json would require strings as keys
+        self.whitelist=ast.literal_eval(whitelist)
+    
 
         self.bot.message_loop(self.recv)
-        while True:
-            pass
-        pass
 
     def recv(self,msg):
         logging.debug(msg)
-        for m in self.mods:
-            m.enqueue(Msg(msg))
+
+        # the util msg is create once! for all mods. 
+        # please copy it in the mod before editing
+        util_msg = Msg(msg)
+
+        chat_id = util_msg.get_chat_id()
+        chat_type = util_msg.get_chat_type()
+        
+        if chat_id in self.whitelist:
+            for m in self.mods:
+                if m.name not in self.whitelist[chat_id]:
+                    m.enqueue(util_msg)
+
+        # whitelist set, but not empty
+        elif self.whitelist:
+            if self.overseer:
+                #report messages to overseer
+                self.bot.sendMessage(self.foverseer,msg)
+            if chat_type != "private":
+                #leave the chat, you're not allowed to be in there
+                self.bot.leaveChat(chat_id)
+                return
+            else:
+                # maybe learn how often someone tries to talk to you
+                # block if over threshold
+                pass
+
+        #simply allow everything, autoleave disabled therefore.
+        else: 
+            for m in self.mods:
+                m.enqueue(util_msg)
 
 def main(args):
     ### Set debugging level ###
@@ -47,21 +77,49 @@ def main(args):
 
     logging.debug("Starting up.")
     try:
-        api_key=config.get(args.section,"API-Key")
+        api_key=config[args.section]["API-key"]
+        logging.debug(" -- using API-key: {}".format(api_key))
     except configparser.NoOptionError:
         logging.critical("No API-key set. Please create one and save it to config.ini.".format(args.config))
         return
-    logging.debug(" -- using API-key: {}".format(api_key))
 
     try:
-        mods=config.get(args.section,"Mods").split(',')
+        mods=config[args.section]["mods"].split(',')
+        logging.debug(" -- using mods: {}".format(mods))
     except configparser.NoOptionError:
         logging.critical("No mods set. Please create one and save it to {}.".format(args.config))
         return
-    logging.debug(" -- using mods: {}".format(mods))
+
+    # this is a blacklist within a whitelist
+    # if the id is in the list, it is allowed to use the mods
+    # if a mod is listed in the whitelist, it is blacklisted
+    # {id:[]} would therefore allow usage of all mods for id
+    whitelist="{}"
+    try:
+        whitelist=config[args.section]["whitelist"]
+        logging.debug(" -- using whitelist: {}".format(whitelist))
+    except KeyError:
+        logging.critical("No whitelist set. Please create one and save it to {}.\nAllowing all messages for now.".format(args.config))
+
+    overseer=0
+    try:
+        overseer=config[args.section]["overseer"]
+        logging.debug(" -- using overseer: {}".format(whitelist))
+    except KeyError:
+        logging.critical("No overseer set. Please save your id to {}.".format(args.config))
 
     ### Start up ###
-    bot=Telegrambot(api_key, mods)
+    bot=Telegrambot(api_key, mods, whitelist, overseer)
+
+    while True:
+        cmd=input("> ")
+        if cmd=="exit":
+            return
+        elif cmd=="help":
+            print("Commands available:")
+            print("\texit\t\texits the python script")
+            print("\thelp\t\tshows this help")
+    pass
 
 if __name__ == '__main__':
     import argparse

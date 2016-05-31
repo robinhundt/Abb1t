@@ -6,8 +6,9 @@ from queue import *
 import gzip, os
 import json
 
-class log(object):
+class log:
     def __init__(self, bot):
+        self.name="log"
         self.bot = bot
         self.queue_in=Queue()
         #self.queue_out=Queue()

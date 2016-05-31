@@ -18,6 +18,16 @@ class Msg:
         except KeyError:
             return ''
 
+    """
+    get the type of the chat that the message was sent in
+    this can be 'private', 'group' or 'supergroup'
+    """
+    def get_chat_type(self):
+        try:
+            return self.raw_msg['chat']['type']
+        except KeyError:
+            return ''
+
     """get the text of the message"""
     def get_text(self):
         try:

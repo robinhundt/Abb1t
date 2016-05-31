@@ -5,8 +5,9 @@ from queue import *
 #mod
 import time
 
-class curtime(object):
+class curtime:
     def __init__(self, bot):
+        self.name="curtime"
         self.bot = bot
         self.queue_in=Queue()
         #self.queue_out=Queue()
