@@ -23,7 +23,6 @@ class voice:
             if msg.get_text()[:len("/voice")]=="/voice" and len(msg.get_text().split(" "))>=2:
                 print("..")
                 tts=msg.get_text().split(" ",1)[1].lower().replace("Ä","ae").replace("ä","ae").replace("Ü","ue").replace("ü","ue").replace("Ö","oe").replace("ö","oe").replace("ß","ss")
-                print("Voice requesting {}".format(tts))
                 temporaryfile=tempfile.TemporaryFile()
                 gtts.gTTS(text=tts,lang="de").write_to_fp(temporaryfile)
                 temporaryfile.seek(0)
