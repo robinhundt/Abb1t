@@ -2,6 +2,7 @@
 import _thread as thread
 from queue import *
 
+#mod
 import textblob
 
 class translate:
