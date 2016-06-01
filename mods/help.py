@@ -17,6 +17,7 @@ class help:
         while 1: 
             msg=self.queue_in.get() # get() is blocking
             chat_id=msg.get_chat_id()
+            chat_type=msg.get_chat_type()
             reply=""
             if msg.get_text()=="/help":
                 for m in self.config.mods:
@@ -30,7 +31,7 @@ class help:
                         else:
                             print("not allowed")
             if reply:
-                self.bot.sendMessage(chat_id,"*Usable modules for this group:*{}".format(reply),parse_mode="Markdown")
+                self.bot.sendMessage(chat_id,"*Usable modules for this {}:*{}".format(("group" if chat_type=="group" else "chat"),reply),parse_mode="Markdown")
 
     def enqueue(self,msg):
         self.queue_in.put(msg)
