@@ -9,6 +9,7 @@ import tempfile
 class voice:
     def __init__(self, bot):
         self.bot = bot.bot
+        self.description = "*/audio* _<message>_ - using gTTS a voice message of _<message>_ is created"
         self.queue_in=Queue()
         #self.queue_out=Queue()
         thread.start_new_thread(self.run,())
@@ -24,7 +25,7 @@ class voice:
                 with tempfile.TemporaryFile() as temporaryfile:
                     gtts.gTTS(text=tts,lang="de").write_to_fp(temporaryfile)
                     temporaryfile.seek(0)
-                    self.bot.sendAudio(chat_id,temporaryfile,title="Abb0tvoice")
+                    self.bot.sendAudio(chat_id,temporaryfile,title="Abb1tvoice")
 
     def enqueue(self,msg):
         self.queue_in.put(msg)

@@ -8,6 +8,7 @@ import urllib.request
 class sub:
     def __init__(self, bot):
         self.bot = bot.bot
+        self.description = "*/sub* - outputs the sub of the day"
         self.queue_in=Queue()
         #self.queue_out=Queue()
         thread.start_new_thread(self.run,())

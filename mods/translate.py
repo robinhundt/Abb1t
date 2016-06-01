@@ -8,6 +8,7 @@ import textblob
 class translate:
     def __init__(self, bot):
         self.bot = bot.bot
+        self.description = "*/translate* _<message>_ - translates _<message>_ to german using textblob"
         self.queue_in=Queue()
         #self.queue_out=Queue()
         thread.start_new_thread(self.run,())

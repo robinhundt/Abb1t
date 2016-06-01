@@ -10,6 +10,7 @@ import re
 class mensa:
     def __init__(self, bot):
         self.bot = bot.bot
+        self.description = "*/mensa* _<day>_\n*/zmensa* _<day>_ - outputs the mensa menu for _<day>_"
         self.queue_in=Queue()
         #self.queue_out=Queue()
         thread.start_new_thread(self.run,())

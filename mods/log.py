@@ -9,6 +9,7 @@ import json
 class log:
     def __init__(self, bot):
         self.bot = bot.bot
+        self.description = ""
         self.queue_in=Queue()
         #self.queue_out=Queue()
         thread.start_new_thread(self.run,())
