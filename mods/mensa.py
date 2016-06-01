@@ -9,7 +9,7 @@ import re
 
 class mensa:
     def __init__(self, bot):
-        self.bot = bot
+        self.bot = bot.bot
         self.queue_in=Queue()
         #self.queue_out=Queue()
         thread.start_new_thread(self.run,())
@@ -45,7 +45,7 @@ class mensa:
             reply=""
             mensa="Nordmensa" if msg.get_text().find("/zmensa")==-1 else "Zentralmensa"
             if msg.get_text() in ["/mensa","/zmensa"]:
-                reply+="*Todays menu:*\n"
+                reply+="*todays menu:*\n"
                 link="http://www.studentenwerk-goettingen.de/speiseplan.html?selectmensa=%s"%mensa
                 pagecontent=urllib.request.urlopen(link).read().decode(encoding='utf-8').strip('\n\r')
                 reply+=self.format_mensa(pagecontent, mensa)
