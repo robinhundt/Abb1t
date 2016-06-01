@@ -5,6 +5,7 @@ from queue import *
 class template:
     def __init__(self, bot):
         self.bot = bot.bot
+        self.description = "/test - outputs an exemplary 'Hello World!' message"
         self.queue_in=Queue()
         #self.queue_out=Queue()
         thread.start_new_thread(self.run,())
