@@ -9,7 +9,7 @@ import tempfile
 class voice:
     def __init__(self, bot):
         self.bot = bot.bot
-        self.description = "*/audio* _<message>_ - using gTTS a voice message of _<message>_ is created"
+        self.description = "*/voice* _<message>_ - using gTTS a voice message of _<message>_ is created"
         self.queue_in=Queue()
         #self.queue_out=Queue()
         thread.start_new_thread(self.run,())
