@@ -23,7 +23,7 @@ The `API-key` is created by using the Telegram BotFather (Have a look at https:/
 
 Furthermore, the `whitelist` is a list, to allow specific Telegram IDs to use mods. If the array to the corresponding ID is empty, it is allowed to use **all** mods. So it is a blacklist within a whitelist. If the bot is added to a group, it will automatically leave, if it is not listed in the whitelist. 
 
-*All* not permitted usages will be reported to the `overseer` as well as "private" messages to the bot.
+*All* unpermitted usages will be reported to the `overseer` as well as "private" messages to the bot.
 
 Finally, you are able to run it with:
 
