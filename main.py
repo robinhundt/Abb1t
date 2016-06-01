@@ -36,6 +36,9 @@ class Telegrambot:
         chat_type = util_msg.get_chat_type()
 
         if chat_id in self.whitelist:
+            if self.overseer and chat_type=="private":
+                # report messages to overseer
+                self.bot.sendMessage(self.overseer,msg)
             for m in self.mods:
                 if type(m).__name__ not in self.whitelist[chat_id]:
                     m.enqueue(util_msg)
@@ -43,10 +46,10 @@ class Telegrambot:
         # whitelist set, but not empty
         elif self.whitelist:
             if self.overseer:
-                #report messages to overseer
+                # report messages to overseer
                 self.bot.sendMessage(self.overseer,msg)
             if chat_type != "private":
-                #leave the chat, you're not allowed to be in there
+                # leave the chat, you're not allowed to be in there
                 self.bot.leaveChat(chat_id)
                 return
             else:
