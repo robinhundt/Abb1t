@@ -12,8 +12,8 @@ class Telegrambot:
         self.mods=[]
         for m in mods_:
             exec("import mods.{}".format(m)) # totally insecure
-            logging.debug("exec mod=mods.{0}.{0}(self.bot)".format(m))
-            exec("mod=mods.{0}.{0}(self.bot)".format(m))
+            logging.debug("exec mod=mods.{0}.{0}(self)".format(m))
+            exec("mod=mods.{0}.{0}(self)".format(m))
             self.mods.append(locals()['mod'])
             # if feedback from the mod is needed
             # start a thread here, e.g.
