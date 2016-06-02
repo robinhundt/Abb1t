@@ -28,6 +28,14 @@ class Msg:
         except KeyError:
             return ''
 
+
+    """get the timestamp of the chat message"""
+    def get_date(self):
+        try:
+            return self.raw_msg['date']
+        except KeyError:
+            return 0
+
     """get the text of the message"""
     def get_text(self):
         try:
