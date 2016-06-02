@@ -19,7 +19,6 @@ class abb1t:
         self.logpath="logs"
         self.archives = [int(f.replace(".gz","")) for f in os.listdir(self.logpath) if os.path.isfile(os.path.join(self.logpath, f)) and not f=="example.gz"]
         self.blacklist = ["voted so far"]
-        self.vectorizer = CountVectorizer(min_df=1)
         #self.vectorizer = TfidfVectorizer(min_df=1)
         self.create_speech() # creates self.speech and self.mat, could be returned if you think its more beautiful
         #self.queue_out=Queue()
@@ -29,7 +28,7 @@ class abb1t:
 
     def generate_answer(self, msg_text, chat_id):
         minimum_index=[1-(10**(-5)),-1] # min value / minimum index
-        t=self.vectorizer.transform([msg_text]).toarray()[0]
+        t=self.vectorizer[key].transform([msg_text]).toarray()[0]
         for i,t2 in enumerate(self.mat[chat_id].toarray()):
             w=cosine(t,t2)
             if abs(w)<=minimum_index[0]:
@@ -68,9 +67,11 @@ class abb1t:
     def create_speech(self):
         self.speech = dict.fromkeys(self.archives,[]) 
         #blacklist=[] # ids to be ignored, not implemented yet
+        self.vectorizer = dict.fromkeys(self.archives,[])
         self.mat = dict.fromkeys(self.archives,[])
         for key in self.speech:
             self.speech[key]=[[],[]] # messages / ids / (maybe timestamps?)
+            self.vectorizer[key]=CountVectorizer(min_df=1)
             if key >=0:
                 continue # why create dictionaries for private messages right now...
             logfile="{}.gz".format(os.path.join(self.logpath,str(key)))
@@ -94,7 +95,7 @@ class abb1t:
                         self.speech[key][0].append(text)
                         self.speech[key][1].append(sent_id)
                     prev_id = sent_id
-            self.mat[key]=self.vectorizer.fit_transform(self.speech[key][0])
+            self.mat[key]=self.vectorizer[key].fit_transform(self.speech[key][0])
 
     def run(self):
         while 1: 
