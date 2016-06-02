@@ -28,7 +28,7 @@ class abb1t:
 
     def generate_answer(self, msg_text, chat_id):
         minimum_index=[1-(10**(-5)),-1] # min value / minimum index
-        t=self.vectorizer[key].transform([msg_text]).toarray()[0]
+        t=self.vectorizer[chat_id].transform([msg_text]).toarray()[0]
         for i,t2 in enumerate(self.mat[chat_id].toarray()):
             w=cosine(t,t2)
             if abs(w)<=minimum_index[0]:
