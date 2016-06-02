@@ -15,7 +15,7 @@ Be sure, that you have the python library called `telepot` installed. This can b
 # pip3 install telepot
 ```
 
-Libraries used by different modules are: `urbandict, textblob, gtts`. Be sure to install them, if you want to use the corresponding module.
+Libraries used by different modules are: `urbandict`, `textblob`, `gtts`. Be sure to install them, if you want to use the corresponding module.
 
 
 ##### Installation
