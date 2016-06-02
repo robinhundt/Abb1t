@@ -1,6 +1,7 @@
 import telepot
 import logging
 from util.msg import Msg
+import time
 
 class Telegrambot:
     def __init__(self, api_key, mods_, whitelist, overseer):
@@ -8,6 +9,7 @@ class Telegrambot:
         self.bot = telepot.Bot(self.api_key)
         self.overseer = overseer
         logging.debug(self.bot.getMe())
+        self.reactiontime = 5 # messages older than this won't be answered
 
         self.mods=[]
         for m in mods_:
@@ -34,6 +36,7 @@ class Telegrambot:
 
         chat_id = util_msg.get_chat_id()
         chat_type = util_msg.get_chat_type()
+        msg_date = util_msg.get_date()
 
         if chat_id in self.whitelist:
             if self.overseer and chat_type=="private":
@@ -41,7 +44,8 @@ class Telegrambot:
                 self.bot.sendMessage(self.overseer,msg)
             for m in self.mods:
                 if type(m).__name__ not in self.whitelist[chat_id]:
-                    m.enqueue(util_msg)
+                    if time.time()-msg_date<self.reactiontime:
+                        m.enqueue(util_msg)
 
         # whitelist set, but not empty
         elif self.whitelist:
@@ -59,8 +63,9 @@ class Telegrambot:
 
         #simply allow everything, autoleave disabled therefore.
         else: 
-            for m in self.mods:
-                m.enqueue(util_msg)
+            if time.time()-msg_date<self.reactiontime:
+                for m in self.mods:
+                    m.enqueue(util_msg)
 
 def main(args):
     ### Set debugging level ###
