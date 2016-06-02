@@ -1,4 +1,4 @@
-# Abb1t
+# Abb1t / Abbit
 **Modular-telegram-bot** (formerly known as Abb0t or Abbot) 
 
 ### Why?
@@ -6,6 +6,19 @@
 If you are using Telegram you might have seen, that bots are omnipresent and able to simplify tasks and lookups. Abb1t is such a bot, that is implemented in python3. It is designed to be modular. So it is easy to create a new mod without changing anything within other files. Please have a look at `./mods/template.py` which demonstrates a template mod/plugin.
 
 ### How?
+
+##### Dependencies
+
+Be sure, that you have the python library called `telepot` installed. This can be done by using
+
+```
+# pip3 install telepot
+```
+
+Libraries used by different modules are: `urbandict, textblob, gtts`. Be sure to install them, if you want to use the corresponding module.
+
+
+##### Installation
 
 Just clone or download the repository. Afterwards, configure the `config.ini`. Here's an example:
 
@@ -53,5 +66,5 @@ Clone, edit `./config.ini`, `$ python3 ./main.py`.
 
 ### FAQ
 
-Why is only python3 support?
+Why is only python3 supported?
 > http://pythonclock.org/
