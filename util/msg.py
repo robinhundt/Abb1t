@@ -36,6 +36,13 @@ class Msg:
         except KeyError:
             return 0
 
+    """get the edit timestamp of the message"""
+    def get_edit_date(self):
+        try:
+            return self.raw_msg['edit_date']
+        except KeyError:
+            return 0
+
     """get the text of the message"""
     def get_text(self):
         try:
