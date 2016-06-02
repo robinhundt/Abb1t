@@ -100,8 +100,9 @@ class abb1t:
         while 1: 
             msg=self.queue_in.get() # get() is blocking
             chat_id=msg.get_chat_id()
+            chat_type=msg.get_chat_type()
             msg_text=msg.get_text().lower()
-            if self.find_name(msg_text) and chat_id:
+            if self.find_name(msg_text) and chat_id and chat_type!="private":
                 reply = self.generate_answer(self.replace_name(msg_text),chat_id)
                 if reply:
                     self.bot.sendMessage(chat_id,reply)
