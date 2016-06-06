@@ -45,13 +45,13 @@ class mensa:
             chat_id=msg.get_chat_id()
             reply=""
             mensa="Nordmensa" if msg.get_text().find("/zmensa")==-1 else "Zentralmensa"
-            if msg.get_text() in ["/mensa","/zmensa"]:
+            if msg.get_text().lower() in ["/mensa","/zmensa"]:
                 reply+="*todays menu:*\n"
                 link="http://www.studentenwerk-goettingen.de/speiseplan.html?selectmensa=%s"%mensa
                 pagecontent=urllib.request.urlopen(link).read().decode(encoding='utf-8').strip('\n\r')
                 reply+=self.format_mensa(pagecontent, mensa)
                 self.bot.sendMessage(chat_id,reply,parse_mode="Markdown")
-            elif msg.get_text()[:len("/mensa")]=="/mensa" or msg.get_text()[:len("/zmensa")]=="/zmensa":
+            elif msg.get_text().lower()[:len("/mensa")]=="/mensa" or msg.get_text().lower()[:len("/zmensa")]=="/zmensa":
                 day = msg.get_text().split(" ")[1].lower()
                 if day == "sunday":
                     reply+="sunday? are you serious?"

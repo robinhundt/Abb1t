@@ -20,7 +20,7 @@ class urbandict:
         while 1: 
             msg=self.queue_in.get() # get() is blocking
             chat_id=msg.get_chat_id()
-            if msg.get_text()[:len("/ud")]=="/ud" and len(msg.get_text().split(" "))>=2:
+            if msg.get_text().lower()[:len("/ud")]=="/ud" and len(msg.get_text().split(" "))>=2:
                 term=msg.get_text().split(" ",1)[1]
                 term_ud=ud.define(term)
                 def_ud=term_ud[0]["def"]

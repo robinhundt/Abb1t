@@ -19,7 +19,7 @@ class translate:
         while 1: 
             msg=self.queue_in.get() # get() is blocking
             chat_id=msg.get_chat_id()
-            if msg.get_text()[:len("/translate")]=="/translate" and len(msg.get_text().split(" "))>=2:
+            if msg.get_text().lower()[:len("/translate")]=="/translate" and len(msg.get_text().split(" "))>=2:
                 foreign=msg.get_text().split(" ",1)[1]
                 try:
                     b=textblob.TextBlob(foreign)

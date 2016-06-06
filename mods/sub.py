@@ -20,7 +20,7 @@ class sub:
         while 1: 
             msg=self.queue_in.get() # get() is blocking
             chat_id=msg.get_chat_id()
-            if msg.get_text()=="/sub":
+            if msg.get_text().lower()=="/sub":
                 content=urllib.request.urlopen(self.subwaylink).read().decode("utf-8").strip('\n\r')
                 try:
                     sub=content.split("<h1>")[1].split("</h1>")[0]
