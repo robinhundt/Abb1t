@@ -88,7 +88,7 @@ def main(args):
         api_key=config[args.section]["API-key"]
         logging.debug(" -- using API-key: {}".format(api_key))
     except configparser.NoOptionError:
-        logging.critical("No API-key set. Please create one and save it to config.ini.".format(args.config))
+        logging.critical("No API-key set. Please create one and save it to {}.".format(args.config))
         return
 
     try:
