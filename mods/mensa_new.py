@@ -82,7 +82,7 @@ def compute_query(message):
     filtr = re.search(r'(vegan|veg|meat|fish|dessert)', message)
 
     mensa  = {'/zmensa' : 'Zentralmensa', '/mensa' : 'Nordmensa', '/tmensa' : 'Mensa am Turm'}[mensa.group(0)]
-    day    = weekday_index[day.group(0)] if day else 0
+    day    = weekday_index[day.group(0)] if day else 31415 # if > 7 mensa return today
     select = lambda a: filtr.group(0) in a.religion if filtr else lambda a: True
 
     return {"selectmensa" : mensa, "push" : 0, "day" : day}, select
@@ -93,8 +93,19 @@ def meal_list(data):
                     data, '//*[@id="speise-main"]/table')[0]:
         menu = tr[0][0].text
 
+        # there is nothing to eat on sundays
+        if data['day'] == weekday_index['sunday']:
+            return
+
         # check if we don't want to parse this row of the table
-        if any(word in menu for word in ['Last Minute', 'Salatbuffet', 'Pastapoint', 'Studentenfutter', 'Fitnesscenter']):
+        if any(word in menu for word in [
+                'Öffnungszeiten',
+                'Last Minute',
+                'Salatbuffet',
+                'Pastapoint',
+                'Studentenfutter',
+                'Fitnesscenter',
+                'Beilagen']):
             continue
 
         # parsing the description field
