@@ -93,13 +93,13 @@ def meal_list(data):
                     data, '//*[@id="speise-main"]/table')[0]:
         menu = tr[0][0].text
 
-        # check if we dont want to parse this row of the table
+        # check if we don't want to parse this row of the table
         if any(word in menu for word in ['Last Minute', 'Salatbuffet', 'Pastapoint', 'Studentenfutter', 'Fitnesscenter']):
             continue
 
         # parsing the description field
         description = [x.strip() for x in tr[1][0].text_content().strip().split("\r\n\t\t\r\n\t\t")]
-        if len(description) == 1: # For Desssert and oder not chnaging dishes
+        if len(description) == 1: # For dessert and other not changing dishes
             title = menu
             description = description[0].replace(", ", "\n")
         else: # len(description) == 2 -- here comes everything else
