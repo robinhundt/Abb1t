@@ -17,40 +17,12 @@ weekday_index = {d : i for i, d in enumerate(
      "saturday"]
 )}
 
-<<<<<<< HEAD
 class mensa_new:
     def __init__(self, bot):
         self.bot = bot.bot
         self.description = """*/mensa* _<day>_ _<preference>_
 */zmensa* _<day>_ _<preference>_- outputs the mensa menu for _<day>_ and _<preference>_
 where _<preference>_ can be fish, dessert, meat, vegan, veg (for vegetarian incl. vegan)"""
-=======
-class Meal:
-    """docstring for Meal"""
-    __slots__ = ["title", "description", "religion"]
-    def __init__(self, title, description, religion):
-        self.title = re.sub(r'\([^)]*\)', '', title).strip()
-        self.description = re.sub(r' \([^)]*\)', '', description).strip()
-
-        # this order has meaning
-        if 'Vegan' in title + description:
-            self.religion = 'vegan'
-        elif 'Dessert' in title:
-            self.religion = 'dessert'
-        elif 'fleischlos' in religion:
-            self.religion = 'vegetarisch'
-        elif 'Fisch' in religion or 'MSC' in religion:
-            self.religion = 'fish'
-        elif 'mit Fleisch' in religion:
-            self.religion = 'meat'
-        else:
-            self.religion = 'omnivor'
-
-class mensa_new:
-    def __init__(self, bot):
-        self.bot = bot.bot
-        self.description = "*/mensa* _<day>_\n*/zmensa* _<day>_ - outputs the mensa menu for _<day>_"
->>>>>>> 0ffb8a78dd6220c76759236db67cc7668f384c96
         self.queue_in=Queue()
         thread.start_new_thread(self.run, ())
 
@@ -75,7 +47,6 @@ class mensa_new:
     def enqueue(self,msg):
         self.queue_in.put(msg)
 
-<<<<<<< HEAD
 ### Helper functions and classes for the bot
 class Meal:
     """docstring for Meal"""
@@ -99,9 +70,6 @@ class Meal:
             self.religion = 'omnivor'
 
 
-=======
-### Helper functions for the bot
->>>>>>> 0ffb8a78dd6220c76759236db67cc7668f384c96
 def get_xpath(url, data, xpath):
     page = requests.get(url, data)
     tree = html.fromstring(page.content)
