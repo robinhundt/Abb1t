@@ -81,7 +81,7 @@ def compute_query(message):
     day   = re.search(r'(monday|tuesday|wednesday|thursday|friday|saturday|sunday)', message)
     filtr = re.search(r'(vegan|veg|meat|fish|dessert)', message)
 
-    mensa  = {'/zmensa' : 'Zentralmensa', '/mensa' : 'Nordmensa', '/tmensa' : 'Mensa+am+Turm'}[mensa.group(0)]
+    mensa  = {'/zmensa' : 'Zentralmensa', '/mensa' : 'Nordmensa', '/tmensa' : 'Mensa am Turm'}[mensa.group(0)]
     day    = weekday_index[day.group(0)] if day else 0
     select = lambda a: filtr.group(0) in a.religion if filtr else lambda a: True
 
@@ -98,6 +98,7 @@ def meal_list(data):
             continue
 
         # parsing the description field
+        # this code is weird because the Mensa Speiseplan is weird
         description = [x.strip() for x in tr[1][0].text_content().strip().split("\r\n\t\t\r\n\t\t")]
         if len(description) == 1: # For dessert and other not changing dishes
             title = menu
