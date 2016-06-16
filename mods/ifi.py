@@ -6,6 +6,7 @@ from queue import *
 from lxml import html
 import requests
 import time
+import re
 
 class ifi:
     def __init__(self, bot):
@@ -34,12 +35,13 @@ class ifi:
                 self.reply = ""
 
                 # ... and update the lectures.
-                lectures = fetch_lectures()
+                lectures = self.fetch_lectures()
                 for lecture in lectures:
                     self.reply += "{0} *{1}* {2} {3}\n".format(
                         lecture[0], lecture[1], lecture[2], lecture[3])
-
-            self.bot.sendMessage(message.get_chat_id(), self.reply, parse_mode="Markdown")
+                if not self.reply: # no lectures exists
+                    self.reply = "No lectures to show."
+                self.bot.sendMessage(message.get_chat_id(), self.reply, parse_mode="Markdown")
             
     def fetch_lectures(self):
         lectures = []
