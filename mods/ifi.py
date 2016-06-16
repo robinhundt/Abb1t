@@ -16,7 +16,7 @@ class ifi:
         self.threshold = 300
 
         self.bot = bot.bot
-        self.description = """*/ifi*_- outputs currently running lectures"""
+        self.description = """*/ifi* - outputs currently running lectures"""
         self.queue_in = Queue()
         thread.start_new_thread(self.run, ())
 
