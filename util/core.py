@@ -2,7 +2,7 @@ def yn(question):
     yn=""
     while not yn: # there is a library for this somewhere... too lazy right now
         try:
-            yn=input("{} [y/N]".format(question))
+            yn=input("{} [y/N] ".format(question))
             if yn.lower()=="y":
                 return True
             elif not yn.lower()=="n":
