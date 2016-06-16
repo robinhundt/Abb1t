@@ -85,10 +85,14 @@ def main(args):
     config = configparser.ConfigParser()
     config.read(args.config)
 
-    if args.section and not args.section in config.sections():
-        logging.warning("Section {} unexistent. Adding it.".format(args.section))
-        config.add_section(args.section)
-        save_config(config, args.config)
+    if args.section:
+        if not args.section in config.sections():
+            logging.warning("Section {} unexistent. Adding it.".format(args.section))
+            config.add_section(args.section)
+            save_config(config, args.config)
+    else:
+        args.section="DEFAULT"
+
 
     logging.debug("Starting up.")
     try:
@@ -130,8 +134,6 @@ def main(args):
         b=telepot.Bot(api_key)
         try:
             b.getMe()
-            print(b.getMe())
-            print("!!!")
         except (telepot.exception.UnauthorizedError, telepot.exception.BadHTTPResponse):
             logging.critical("API-key is wrong. Please save the correct one in your {} !".format(args.config))
             if yn("Erase old one for the next time?"):
@@ -141,8 +143,6 @@ def main(args):
         logging.critical("To register your ID, simply -private- message the bot now. You have got 65535 seconds to do so...")
         msgs=b.getUpdates(timeout=65535)
         m=Msg(msgs[0]["message"])
-        print(m.raw_msg)
-        print(m.get_from_first_name())
         while not yn("Is this your Telegram name? \"{} {}\"".format(m.get_from_first_name(),m.get_from_last_name())):
             logging.critical("ACKing all messages, retrying. Send a new message please (Timeout again 65535 secs.)")
             m=Msg(b.getUpdates(offset=msgs[~0]["update_id"]+1,timeout=65535)[0]["message"])
