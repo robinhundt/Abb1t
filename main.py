@@ -99,7 +99,7 @@ def main(args):
         api_key=config[args.section]["API-key"] # note that configs are case INsensitive
         logging.debug(" -- using API-key: {}".format(api_key))
     except KeyError:
-        api_key=input("No api-key set. Please create one and enter it now:")
+        api_key=input("No api-key set. Please create one and enter it now: ")
         config.set(args.section,"API-key",api_key)
         save_config(config, args.config)
 
