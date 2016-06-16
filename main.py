@@ -1,6 +1,7 @@
 import telepot
 import logging
 from util.msg import Msg
+from util.core import yn
 import time
 
 class Telegrambot:
@@ -9,7 +10,7 @@ class Telegrambot:
         self.bot = telepot.Bot(self.api_key)
         self.overseer = overseer
         logging.debug(self.bot.getMe())
-        self.reactiontime = 5 # messages older than this won't be answered
+        self.reactiontime = 10 # messages older than this won't be answered
 
         self.mods=[]
         for m in mods_:
@@ -67,6 +68,10 @@ class Telegrambot:
                 for m in self.mods:
                     m.enqueue(util_msg)
 
+def save_config(config, name):
+    with open(name,"w") as fw:
+        config.write(fw)
+
 def main(args):
     ### Set debugging level ###
     if args.debug:
@@ -79,24 +84,29 @@ def main(args):
     ### Reading out config file ###
     config = configparser.ConfigParser()
     config.read(args.config)
-    if not args.section in config.sections():
-        logging.warning("Section unexistent. Switching to default.")
-        args.section="DEFAULT" # default is used anyway..
+
+    if args.section and not args.section in config.sections():
+        logging.warning("Section {} unexistent. Adding it.".format(args.section))
+        config.add_section(args.section)
+        save_config(config, args.config)
 
     logging.debug("Starting up.")
     try:
-        api_key=config[args.section]["API-key"]
+        api_key=config[args.section]["API-key"] # note that configs are case INsensitive
         logging.debug(" -- using API-key: {}".format(api_key))
-    except configparser.NoOptionError:
-        logging.critical("No API-key set. Please create one and save it to {}.".format(args.config))
-        return
+    except KeyError:
+        api_key=input("No api-key set. Please create one and enter it now:")
+        config.set(args.section,"API-key",api_key)
+        save_config(config, args.config)
 
     try:
         mods=config[args.section]["mods"].split(',')
         logging.debug(" -- using mods: {}".format(mods))
-    except configparser.NoOptionError:
-        logging.critical("No mods set. Please create one and save it to {}.".format(args.config))
-        return
+    except KeyError:
+        mods=input("No modules set to be loaded. Please list them separated by commas, e.g.: mod1,mod2,mod3:\n").replace(" ","").strip(",")
+        config.set(args.section,"mods",mods)
+        mods=mods.split(",")
+        save_config(config, args.config)
 
     # this is a blacklist within a whitelist
     # if the id is in the list, it is allowed to use the mods
@@ -107,14 +117,38 @@ def main(args):
         whitelist=config[args.section]["whitelist"]
         logging.debug(" -- using whitelist: {}".format(whitelist))
     except KeyError:
-        logging.critical("No whitelist set. Please create one and save it to {}.\nAllowing all messages for now.".format(args.config))
+        config.set(args.section,"whitelist",whitelist)
+        save_config(config, args.config)
+        logging.critical("No whitelist set. Allowing all messages for now. This message won't be shown again for section {}.".format(args.section))
 
     overseer=0
     try:
         overseer=config[args.section]["overseer"]
-        logging.debug(" -- using overseer: {}".format(whitelist))
+        logging.debug(" -- using overseer: {}".format(overseer))
     except KeyError:
-        logging.critical("No overseer set. Please save your id to {}.".format(args.config))
+        logging.critical("No overseer set. Starting the bot to set this.")
+        b=telepot.Bot(api_key)
+        try:
+            b.getMe()
+            print(b.getMe())
+            print("!!!")
+        except (telepot.exception.UnauthorizedError, telepot.exception.BadHTTPResponse):
+            logging.critical("API-key is wrong. Please save the correct one in your {} !".format(args.config))
+            if yn("Erase old one for the next time?"):
+                config.remove_option(args.section, "api-key")
+                save_config(config, args.config)
+            return 
+        logging.critical("To register your ID, simply -private- message the bot now. You have got 65535 seconds to do so...")
+        msgs=b.getUpdates(timeout=65535)
+        m=Msg(msgs[0]["message"])
+        print(m.raw_msg)
+        print(m.get_from_first_name())
+        while not yn("Is this your Telegram name? \"{} {}\"".format(m.get_from_first_name(),m.get_from_last_name())):
+            logging.critical("ACKing all messages, retrying. Send a new message please (Timeout again 65535 secs.)")
+            m=Msg(b.getUpdates(offset=msgs[~0]["update_id"]+1,timeout=65535)[0]["message"])
+        overseer=m.get_from_id()
+        config.set(args.section,"overseer",str(overseer))
+        save_config(config, args.config)
 
     ### Start up ###
     bot=Telegrambot(api_key, mods, whitelist, overseer)
@@ -133,7 +167,7 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("-c","--config", type=str, help="name of the config file", required=False, default="config.ini")
-    parser.add_argument("-s","--section", type=str, help="section to be used out of the config", required=False, default="DEFAULT")
+    parser.add_argument("-s","--section", type=str, help="section to be used out of the config", required=False, default="")
     parser.add_argument("-d","--debug", action='store_true', help='enable debug messages', required=False)
     args=parser.parse_args()
     main(args)
