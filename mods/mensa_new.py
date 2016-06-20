@@ -80,11 +80,11 @@ def get_xpath(url, data, xpath):
 
 def compute_query(message):
     mensa = re.search(r'^/[zti]?mensa', message)
-    day   = re.search(r'[^n](mo|tu|we|th|fr|sa|su)', message)
+    day   = re.search(r'\s(mo|tu|we|th|fr|sa|su)', message)
     filtr = re.search(r'(vegan|veg|meat|fish|dessert)', message)
 
     mensa  = {'/zmensa' : 'Zentralmensa', '/mensa' : 'Nordmensa', '/tmensa' : 'Mensa am Turm', '/imensa' : 'Mensa Italia'}[mensa.group(0)]
-    day    = weekday_index[day.group(0)] if day else 31415 # if > 7 mensa return today
+    day    = weekday_index[day.groups()[0]] if day else 31415 # if > 7 mensa return today
     select = lambda a: filtr.group(0) in a.religion if filtr else lambda a: True
 
     return {"selectmensa" : mensa, "push" : 0, "day" : day}, select
