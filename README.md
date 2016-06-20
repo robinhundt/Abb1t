@@ -9,36 +9,20 @@ If you are using Telegram you might have seen, that bots are omnipresent and abl
 
 ##### Dependencies
 
-Be sure, that you have the python library called `telepot` installed. This can be done by using
+Be sure, that you have the python library called `telepot` (version 7.1) installed. This can be done by using
 
 ```
-# pip3 install telepot
+# pip3 install 'telepot==7.1'
 ```
 
-Libraries used by different modules are: `urbandict`, `textblob`, `gtts`. Be sure to install them, if you want to use the corresponding module.
+Libraries used by different modules are: `urbandict`, `textblob`, `gtts`, `sklearn`(including `scipy`). Be sure to install them, if you want to use the corresponding modules.
 
 
 ##### Installation
 
-Just clone or download the repository. Afterwards, configure the `config.ini`. Here's an example:
+Just clone or download the repository. Afterwards, create an `API-key` by using the Telegram BotFather (Have a look at https://core.telegram.org/bots).
 
-```
-[DEFAULT]
-API-key=135792468:ABCDE1_2abcdefghiJK3_45abcdef
-mods=curtime,log,sub,mensa,translate,voice,urbandict,help
-whitelist={123456789:[],-987654321:["curtime"]}
-overseer=1234567
-```
-
-The `API-key` is created by using the Telegram BotFather (Have a look at https://core.telegram.org/bots).
-
-`mods` clarify which mods are supposed to be loaded on startup.
-
-Furthermore, the `whitelist` is a list, to allow specific Telegram IDs to use mods. If the array to the corresponding ID is empty, it is allowed to use **all** mods. So it is a blacklist within a whitelist. If the bot is added to a group, it will automatically leave, if it is not listed in the whitelist. 
-
-*All* unpermitted usages will be reported to the `overseer` as well as "private" messages to the bot.
-
-Finally, you are able to run it with:
+Now run it with:
 
 ```
 $ python3 ./main.py
@@ -60,9 +44,25 @@ optional arguments:
   -d, --debug           enable debug messages
 ```
 
+All settings of the config will be asked on startup. However, this is how a `config.ini` could look like:
+
+```
+[DEFAULT]
+API-key=135792468:ABCDE1_2abcdefghiJK3_45abcdef
+mods=curtime,log,sub,mensa,translate,voice,urbandict,help
+whitelist={123456789:[],-987654321:["curtime"]}
+overseer=1234567
+```
+
+`mods` clarify which mods are supposed to be loaded on startup.
+
+Furthermore, the `whitelist` is a list, to allow specific Telegram IDs to use mods. If the array to the corresponding ID is empty, it is allowed to use **all** mods. So it is a blacklist within a whitelist. If the bot is added to a group, it will automatically leave, if it is not listed in the whitelist. 
+
+*All* unpermitted usages will be reported to the `overseer` as well as "private" messages to the bot.
+
 ### TL;DR
 
-Clone, edit `./config.ini`, `$ python3 ./main.py`.
+Clone repo and start with `$ python3 ./main.py`.
 
 ### FAQ
 
