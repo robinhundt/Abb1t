@@ -17,7 +17,7 @@ class xkcd:
 
     def __init__(self, bot):
         self.bot = bot.bot
-        self.description = r"""/xkcd ?([1-9]\d+|rnd|rand|random|toggle|)$ - self explanatory, possibility to toggle for new xkcds"""
+        self.description = r"""*/xkcd* ?([1-9]\d+|r|rnd|rand|random|toggle|)$ - self explanatory, possibility to toggle for new xkcds"""
         self.queue_in = Queue()
         self.latest = xkcd.get_total_number()
         self.chat_ids = []
@@ -36,11 +36,11 @@ class xkcd:
             message = self.queue_in.get()  # get() is blocking
             message_text = message.get_text().lower()
             chat_id = message.get_chat_id()
-            match = re.search(r'^(\/xkcd) ?([1-9]\d+|rnd|rand|random|)$', message_text)
+            match = re.search(r'^(\/xkcd) ?([1-9]\d+|r|rnd|rand|random|)$', message_text)
             if match:
                 if not match.group(2):
                     self.getXKCD(chat_id, xkcd.get_total_number())
-                elif 'nd' in match.group(2):
+                elif 'r' in match.group(2):
                     random.seed()
                     self.getXKCD(chat_id, random.randint(1, xkcd.get_total_number()))
                 elif int(match.group(2)) < xkcd.get_total_number():
@@ -74,7 +74,7 @@ class xkcd:
                     self.latest = current_latest
                     for chat_id in self.chat_ids: #this is not that performant... maybe change it in the future
                         self.getXKCD(chat_id, xkcd.get_total_number())
-            time.sleep(900) # sleep 15min
+            time.sleep(14400) # sleep 4hr
 
     def getXKCD(self, chat_id, number):
         r = requests.get(xkcd_number.format(number)).json()
