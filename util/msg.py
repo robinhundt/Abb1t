@@ -11,10 +11,27 @@ class Msg:
         except KeyError:
             return ''
 
+    def get_from_id(self): # the same as sent_id, just a new alias
+        return self.get_sent_id()
+
     """get the id of the group/person that the message was sent in"""
     def get_chat_id(self):
         try:
             return self.raw_msg['chat']['id']
+        except KeyError:
+            return ''
+
+    """get the forename of the person that sent the message"""
+    def get_from_first_name(self):
+        try:
+            return self.raw_msg['from']['first_name']
+        except KeyError:
+            return ''
+
+    """get the surname of the person that sent the message"""
+    def get_from_last_name(self):
+        try:
+            return self.raw_msg['from']['last_name']
         except KeyError:
             return ''
 
