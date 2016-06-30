@@ -16,9 +16,7 @@ class xkcd:
 
     def __init__(self, bot):
         self.bot = bot.bot
-        self.description = """*/mensa* _<day>_ _<preference>_
-*/zmensa* _<day>_ _<preference>_- outputs the mensa menu for _<day>_ and _<preference>_
-where _<preference>_ can be fish, dessert, meat, vegan, veg (for vegetarian incl. vegan)"""
+        self.description = r"""^(\/xkcd) ?([1-9]\d+|rnd|rand|random|)$"""
         self.queue_in = Queue()
         thread.start_new_thread(self.run, ())
 
@@ -61,8 +59,3 @@ def getTotalNumber():
     return int(requests.get(xkcd_latest).json()['num'])
 
 
-# {"month: 6, num: 1700, link: , year: 2016, news: , safe_title: New Bug,
-# "transcript: , alt: There's also a unicode-handling bug in the URL request
-# "library, and we're storing the passwords unsalted ... so if we salt them with
-# "emoji, we can close three issues at once!, img:
-# "http:\/\/imgs.xkcd.com\/comics\/new_bug.png, title: New Bug, day: 29}
