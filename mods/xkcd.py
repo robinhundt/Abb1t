@@ -4,70 +4,58 @@ from queue import *
 
 # other imports
 from lxml import html
-import requests
-import time
 import re
+import requests
+import random
 import tempfile
 
-class xkcd:
-    def __init__(self, bot):
-        # Initialize update timer and threshold.
-        self.last_update = 0
-        self.threshold = 300
+xkcd_latest = "http://xkcd.com/info.0.json"
+xkcd_number = "http://xkcd.com/{}/info.0.json"
 
+class xkcd:
+
+    def __init__(self, bot):
         self.bot = bot.bot
-        self.description = """*/xkcd* _<id|r[andom]>_ - outputs current, specific id or random xkcd comic"""
+        self.description = r"""^(\/xkcd) ?([1-9]\d+|rnd|rand|random|)$"""
         self.queue_in = Queue()
         thread.start_new_thread(self.run, ())
 
     def run(self):
         while True:
-            message = self.queue_in.get() # get() is blocking
-            message_text = message.get_text().lower()
-            url = ""
-            if re.search(r'^/xkcd$', message_text): # current comic
-                url = "http://xkcd.com/"
-            elif re.search(r'^/xkcd r[andom]{0,5}$', message_text): # current comic
-                url = "http://c.xkcd.com/random/comic/"
-            elif re.search(r'^/xkcd (\d)', message_text): # message with numeric value
-                comic_id = re.search(r'^/xkcd (\d*)$', message_text)
-                print(comic_id.groups())
-                if comic_id:
-                    url = "http://xkcd.com/{}/".format(comic_id.group(1))
-                else:
-                    continue
-            if url:
-                comic=self.get_xpath(url,'//*[@id="comic"]/img')[0]
-                img_src   = "http://{}".format(comic.get("src").strip('/'))
-                img_title = comic.get("title")
-                print(img_src,img_title)
+            message = self.queue_in.get()  # get() is blocking
+            message_text = message.get_text()
+            chat_id = message.get_chat_id()
+            match = re.search(r'^(\/xkcd) ?([1-9]\d+|rnd|rand|random|)$', message_text)
+            if not match:
+                continue
 
-                with tempfile.NamedTemporaryFile(suffix='.jpg') as temporaryfile:
-                    temporaryfile.write(requests.get(img_src).content)
-                    temporaryfile.seek(0)
-                    if len(img_title)>200:
-                        self.bot.sendPhoto(message.get_chat_id(),temporaryfile,caption="")
-                        self.bot.sendMessage(message.get_chat_id(),img_title)
-                    else:
-                        self.bot.sendPhoto(message.get_chat_id(),temporaryfile,caption=img_title)
-            
-    def fetch_lectures(self):
-        lectures = []
+            if not match.group(2):
+                self.getXKCD(chat_id, getTotalNumber())
+            elif 'nd' in match.group(2):
+                random.seed()
+                self.getXKCD(chat_id, random.randint(1, getTotalNumber()))
+            elif int(match.group(2)) < getTotalNumber():
+                self.getXKCD(chat_id, int(match.group(2)))
+            else:
+                self.bot.sendMessage(chat_id, "Sorry, this xkcd doesn't yet exist.")
 
-        for tr in self.get_xpath("http://display.informatik.uni-goettingen.de/events.html", 
-             '//*[@id="comic"]/img')[0]:
-            if len(tr) == 4:
-                lectures.append(self.process_lecture(tr))
 
-        return lectures
-
-    def process_lecture(self, tr):
-        return [ ' '.join(td.text_content().split()) for td in tr ]
-
-    def get_xpath(self, url, xpath):
-        page = requests.get(url)
-        tree = html.fromstring(page.content)
-        return tree.xpath(xpath)
 
     def enqueue(self, msg):
         self.queue_in.put(msg)
+
+    def getXKCD(self, chat_id, number):
+        r = requests.get(xkcd_number.format(number)).json()
+        with tempfile.NamedTemporaryFile(suffix='png') as image:
+            image.write(requests.get(r[u'img']).content)
+            image.seek(0)
+            self.bot.sendMessage(
+                chat_id, "xkcd #{}: *{}*".format(r[u'num'], r[u'title']), parse_mode='Markdown')
+            self.bot.sendPhoto(chat_id, image)
+            self.bot.sendMessage(chat_id, r[u'alt'])
+
+
+def getTotalNumber():
+    return int(requests.get(xkcd_latest).json()['num'])
+
+
