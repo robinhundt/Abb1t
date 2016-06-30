@@ -68,3 +68,9 @@ Clone repo and start with `$ python3 ./main.py`.
 
 Why is only python3 supported?
 > http://pythonclock.org/
+
+### ToDo-List
+
+- add xkcd ticker
+- add voice language support
+
