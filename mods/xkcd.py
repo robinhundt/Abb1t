@@ -51,10 +51,10 @@ class xkcd:
                 print(self.chat_ids)
                 if chat_id not in self.chat_ids:
                     self.chat_ids.append(message.get_chat_id())
-                    self.bot.sendMessage(message.get_chat_id(), "Added your chat_id to the *xkcd ticker*", parse_mode="Markdown")
+                    self.bot.sendMessage(message.get_chat_id(), "Added your chat\_id to the *xkcd ticker*", parse_mode="Markdown")
                 else:
                     self.chat_ids.remove(message.get_chat_id())
-                    self.bot.sendMessage(message.get_chat_id(), "Deleted your chat_id from the *xkcd ticker*", parse_mode="Markdown")
+                    self.bot.sendMessage(message.get_chat_id(), "Deleted your chat\_id from the *xkcd ticker*", parse_mode="Markdown")
                 self.save_ids()
 
     def save_ids(self):
