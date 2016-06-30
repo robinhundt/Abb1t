@@ -83,8 +83,9 @@ class xkcd:
             image.seek(0)
             self.bot.sendMessage(
                 chat_id, "xkcd #{}: *{}*".format(r[u'num'], r[u'title']), parse_mode='Markdown')
-            self.bot.sendPhoto(chat_id, image)
-            self.bot.sendMessage(chat_id, r[u'alt'])
+            self.bot.sendPhoto(chat_id, image, caption = r[u'alt'] if len(r[u'alt'])<200 else "")
+            if len(r[u'alt'])>=200:
+                self.bot.sendMessage(chat_id, r[u'alt'])
 
     @staticmethod
     def get_total_number():
