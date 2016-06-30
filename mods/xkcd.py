@@ -72,7 +72,8 @@ class xkcd:
                 current_latest = xkcd.get_total_number()
                 if self.latest != current_latest: #new one available
                     self.latest = current_latest
-                    self.getXKCD(chat_id, xkcd.get_total_number())
+                    for chat_id in self.chat_ids: #this is not that performant... maybe change it in the future
+                        self.getXKCD(chat_id, xkcd.get_total_number())
             time.sleep(900) # sleep 15min
 
     def getXKCD(self, chat_id, number):
