@@ -1,69 +1,124 @@
-#essential
+# essential
 import _thread as thread
 from queue import *
 
-#mod
-import urllib.request
-import html.parser
+# other imports
+from lxml import html
 import re
+import requests
 
-class mensa:
+weekday_index = {d : i for i, d in enumerate(
+    ["su",
+     "mo",
+     "tu",
+     "we",
+     "th",
+     "fr",
+     "sa"]
+)}
+
+class mensa_new:
     def __init__(self, bot):
         self.bot = bot.bot
-        self.description = "*/mensa* _<day>_\n*/zmensa* _<day>_ - outputs the mensa menu for _<day>_"
+        self.description = """*/mensa* _<day>_ _<preference>_
+*/tmensa* _<day>_ _<preference>_
+*/imensa* _<day>_ _<preference>_
+*/zmensa* _<day>_ _<preference>_- outputs the mensa menu for _<day>_ and _<preference>_
+where _<preference>_ can be fish, dessert, meat, vegan, veg (for vegetarian incl. vegan)"""
         self.queue_in=Queue()
-        #self.queue_out=Queue()
-        thread.start_new_thread(self.run,())
-        #self.resttime=0
-        #self.lastcmd=0
-        self.days=["week", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
-        self.htmlparser=html.parser.HTMLParser()
-
-    def format_mensa(self, content, mensa):
-        app=content.split('<td class="ext_sits_speiseplan_rechts"><span class="ext_sits_essen">')
-        dishes=[]
-        fruits=[]
-        ret = ""
-        if len(app)>1:
-            for i in range(1,len(app)):
-                if len(app[i].split("<strong>")[1].split("</strong>")[0]): # meals
-                    mens=self.htmlparser.unescape(app[i].split("<strong>")[1].split("</strong>")[0])
-                    mens=''.join(mens)
-                    ret+="*{}*\n".format(str(re.sub("\(.*\)","",mens)).strip(" \r\n\t"))
-                if len(app[i].split("</strong>")[1].split("</span>")[0].strip("\r\n\t")) and mensa=="Nordmensa": #side dishes
-                    dish=self.htmlparser.unescape(app[i].split("</strong>")[1].split("</span>")[0].strip("\r\n\t"))
-                    dish=''.join(dish)
-                    if dish.lower().find("verschiedene salat-")==-1 and dish.lower().find("nur solange der vor")==-1 and dish.lower().find("allergene")==-1:
-                        ret+=str(re.sub("\(.*\)","",dish).replace(" ,",",")).strip(" \r\n\t")+"\n\n"
-        else:
-            ret+="Nothing to eat _(anymore)_ 😕"
-        return ret
+        thread.start_new_thread(self.run, ())
 
     def run(self):
-        while 1: 
-            msg=self.queue_in.get() # get() is blocking
-            chat_id=msg.get_chat_id()
-            reply=""
-            mensa="Nordmensa" if msg.get_text().find("/zmensa")==-1 else "Zentralmensa"
-            if msg.get_text().lower() in ["/mensa","/zmensa"]:
-                reply+="*todays menu:*\n"
-                link="http://www.studentenwerk-goettingen.de/speiseplan.html?selectmensa=%s"%mensa
-                pagecontent=urllib.request.urlopen(link).read().decode(encoding='utf-8').strip('\n\r')
-                reply+=self.format_mensa(pagecontent, mensa)
-                self.bot.sendMessage(chat_id,reply,parse_mode="Markdown")
-            elif msg.get_text().lower()[:len("/mensa")]=="/mensa" or msg.get_text().lower()[:len("/zmensa")]=="/zmensa":
-                day = msg.get_text().split(" ")[1].lower()
-                if day == "sunday":
-                    reply+="sunday? are you serious?"
-                elif day in self.days:
-                    push = 0
-                    day_index = self.days.index(day)
-                    link="http://www.studentenwerk-goettingen.de/speiseplan.html?selectmensa=%s&push=%d&day=%d"%(mensa,push,day_index)
-                    pagecontent=urllib.request.urlopen(link).read().decode(encoding='utf-8').strip('\n\r')
-                    reply+="*%ss menu*:\n"%day
-                    reply+=self.format_mensa(pagecontent, mensa)
-                if reply:
-                    self.bot.sendMessage(chat_id,reply,parse_mode="Markdown")
+        while True:
+            message = self.queue_in.get() # get() is blocking
+            if not re.search(r'^/[zti]?mensa', message.get_text()):
+                continue
+
+            chat_id = message.get_chat_id()
+            data, filtr = compute_query(message.get_text())
+            reply = ""
+            for meal in filter(filtr, meal_list(data)):
+                reply += "*" + meal.title + "*\n"
+                reply += meal.description + "\n\n"
+
+            if reply == "":
+                reply = "Sadly you will have to starve :-("
+
+            self.bot.sendMessage(chat_id, reply, parse_mode="Markdown")
 
     def enqueue(self,msg):
         self.queue_in.put(msg)
+
+### Helper functions and classes for the bot
+class Meal:
+    """docstring for Meal"""
+    __slots__ = ["title", "description", "religion"]
+    def __init__(self, title, description, religion):
+        self.title = re.sub(r'\([^)]*\)', '', title).strip()
+        self.description = re.sub(r' \([^)]*\)', '', description).strip()
+
+        # this order has meaning
+        if 'Vegan' in title + description:
+            self.religion = 'vegan'
+        elif 'Dessert' in title:
+            self.religion = 'dessert'
+        elif 'fleischlos' in religion:
+            self.religion = 'vegetarian'
+        elif 'Fisch' in religion or 'MSC' in religion:
+            self.religion = 'fish'
+        elif 'mit Fleisch' in religion:
+            self.religion = 'meat'
+        else:
+            self.religion = 'omnivor'
+
+
+def get_xpath(url, data, xpath):
+    page = requests.get(url, data)
+    tree = html.fromstring(page.content)
+    return tree.xpath(xpath)
+
+
+def compute_query(message):
+    mensa = re.search(r'^/[zti]?mensa', message)
+    day   = re.search(r'\s(mo|tu|we|th|fr|sa|su)', message)
+    filtr = re.search(r'(vegan|veg|meat|fish|dessert)', message)
+
+    mensa  = {'/zmensa' : 'Zentralmensa', '/mensa' : 'Nordmensa', '/tmensa' : 'Mensa am Turm', '/imensa' : 'Mensa Italia'}[mensa.group(0)]
+    day    = weekday_index[day.groups()[0]] if day else 31415 # if > 7 mensa return today
+    select = lambda a: filtr.group(0) in a.religion if filtr else lambda a: True
+
+    return {"selectmensa" : mensa, "push" : 0, "day" : day}, select
+
+
+def meal_list(data):
+    for tr in get_xpath("http://www.studentenwerk-goettingen.de/speiseplan.html",
+                    data, '//*[@id="speise-main"]/table')[0]:
+        menu = tr[0][0].text
+
+        # there is nothing to eat on sundays
+        if data['day'] == weekday_index['su']:
+            return
+
+        # check if we don't want to parse this row of the table
+        if any(word in menu for word in [
+                'Öffnungszeiten',
+                'Last Minute',
+                'Salatbuffet',
+                'Pastapoint',
+                'Studentenfutter',
+                'Fitnesscenter',
+                'Beilagen']):
+            continue
+
+        # parsing the description field
+        # this code is weird because the Mensa Speiseplan is weird
+        description = [x.strip() for x in tr[1][0].text_content().strip().split("\r\n\t\t\r\n\t\t")]
+        if len(description) == 1: # For dessert and other not changing dishes
+            title = menu
+            description = description[0].replace(", ", "\n")
+        else: # len(description) == 2 -- here comes everything else
+            title, description = description
+
+        religion = tr[2][0].attrib['title']
+
+        yield Meal(title, description, religion)
