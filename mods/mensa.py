@@ -17,7 +17,7 @@ weekday_index = {d : i for i, d in enumerate(
      "sa"]
 )}
 
-class mensa_new:
+class mensa:
     def __init__(self, bot):
         self.bot = bot.bot
         self.description = """*/mensa* _<day>_ _<preference>_
