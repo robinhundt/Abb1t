@@ -20,10 +20,7 @@ weekday_index = {d : i for i, d in enumerate(
 class mensa:
     def __init__(self, bot):
         self.bot = bot.bot
-        self.description = """*/mensa* _<day>_ _<preference>_
-*/tmensa* _<day>_ _<preference>_
-*/imensa* _<day>_ _<preference>_
-*/zmensa* _<day>_ _<preference>_- outputs the mensa menu for _<day>_ and _<preference>_
+        self.description = """*/[ztib]?mensa* _<day>_ _<preference>_ - outputs the mensa menu for _<day>_ and _<preference>_
 where _<preference>_ can be fish, dessert, meat, vegan, veg (for vegetarian incl. vegan)"""
         self.queue_in=Queue()
         thread.start_new_thread(self.run, ())
@@ -31,7 +28,7 @@ where _<preference>_ can be fish, dessert, meat, vegan, veg (for vegetarian incl
     def run(self):
         while True:
             message = self.queue_in.get() # get() is blocking
-            if not re.search(r'^/[zti]?mensa', message.get_text()):
+            if not re.search(r'^/[ztib]?mensa', message.get_text()):
                 continue
 
             chat_id = message.get_chat_id()
@@ -79,11 +76,11 @@ def get_xpath(url, data, xpath):
 
 
 def compute_query(message):
-    mensa = re.search(r'^/[zti]?mensa', message)
+    mensa = re.search(r'^/[ztib]?mensa', message)
     day   = re.search(r'\s(mo|tu|we|th|fr|sa|su)', message)
     filtr = re.search(r'(vegan|veg|meat|fish|dessert)', message)
 
-    mensa  = {'/zmensa' : 'Zentralmensa', '/mensa' : 'Nordmensa', '/tmensa' : 'Mensa am Turm', '/imensa' : 'Mensa Italia'}[mensa.group(0)]
+    mensa  = {'/zmensa' : 'Zentralmensa', '/mensa' : 'Nordmensa', '/tmensa' : 'Mensa am Turm', '/imensa' : 'Mensa Italia', '/bmensa' : 'Bistro HAWK'}[mensa.group(0)]
     day    = weekday_index[day.groups()[0]] if day else 31415 # if > 7 mensa return today
     select = lambda a: filtr.group(0) in a.religion if filtr else lambda a: True
 
