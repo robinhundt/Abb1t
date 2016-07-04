@@ -8,7 +8,7 @@ import urbandict as ud
 class urbandict:
     def __init__(self, bot):
         self.bot = bot.bot
-        self.description = "*/ud* _<term>_ - defines _<termn>_ using the urbandictionary"
+        self.description = "*/ud* _<term>_ - defines _<term>_ using the urbandictionary"
         self.queue_in=Queue()
         #self.queue_out=Queue()
         thread.start_new_thread(self.run,())
