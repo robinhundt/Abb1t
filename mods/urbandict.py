@@ -1,37 +1,34 @@
-#essential
+# essential
 import _thread as thread
+import re
 from queue import *
 
-#mod
+# mod
 import urbandict as ud
 
+
 class urbandict:
+
     def __init__(self, bot):
         self.bot = bot.bot
         self.description = "*/ud* _<term>_ - defines _<term>_ using the urbandictionary"
-        self.queue_in=Queue()
-        #self.queue_out=Queue()
-        thread.start_new_thread(self.run,())
-        #self.resttime=0
-        #self.lastcmd=0
-        self.output_example=False
+        self.queue_in = Queue()
+        thread.start_new_thread(self.run, ())
+        # self.output_example = False
 
     def run(self):
-        while 1: 
-            msg=self.queue_in.get() # get() is blocking
-            chat_id=msg.get_chat_id()
-            if msg.get_text().lower()[:len("/ud")]=="/ud" and len(msg.get_text().split(" "))>=2:
-                term=msg.get_text().split(" ",1)[1]
-                term_ud=ud.define(term)
-                def_ud=term_ud[0]["def"]
-                def_ex=""
-                if def_ud.find("There aren't any definitions")==-1:  #there is a def
-                    reply=def_ud.strip("\n\r ")
-                    if self.output_example:
-                        reply+="\nExample: %s"%def_ex
-                else: 
-                    reply="No definition found."
-                self.bot.sendMessage(chat_id,reply)
+        while True:
+            msg = self.queue_in.get()  # get() is blocking
+            match = re.search(r'^\/ud (.*)$', msg.get_text().lower())
+            if match:
+                self.bot.sendMessage(msg.get_chat_id(), self.decide(match))
 
-    def enqueue(self,msg):
+    @staticmethod
+    def decide(match):
+        definition = ud.define(match.group(1))[0]['def']
+        if "There aren't any definitions for" in definition:
+            return "No definition found."
+        return definition
+
+    def enqueue(self, msg):
         self.queue_in.put(msg)

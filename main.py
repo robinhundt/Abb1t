@@ -24,14 +24,14 @@ class Telegrambot:
             # to use this, use queue_out in each mod
         import ast #json would require strings as keys
         self.whitelist=ast.literal_eval(whitelist)
-    
+
 
         self.bot.message_loop(self.recv)
 
     def recv(self,msg):
         logging.debug(msg)
 
-        # the util msg is create once! for all mods. 
+        # the util msg is create once! for all mods.
         # please copy it in the mod before editing
         util_msg = Msg(msg)
 
@@ -63,7 +63,7 @@ class Telegrambot:
                 pass
 
         #simply allow everything, autoleave disabled therefore.
-        else: 
+        else:
             if time.time()-msg_date<self.reactiontime:
                 for m in self.mods:
                     m.enqueue(util_msg)
@@ -139,7 +139,7 @@ def main(args):
             if yn("Erase old one for the next time?"):
                 config.remove_option(args.section, "api-key")
                 save_config(config, args.config)
-            return 
+            return
         logging.critical("To register your ID, simply -private- message the bot now. You have got 65535 seconds to do so...")
         msgs=b.getUpdates(timeout=65535)
         m=Msg(msgs[0]["message"])
@@ -161,7 +161,6 @@ def main(args):
             print("Commands available:")
             print("\texit\t\texits the python script")
             print("\thelp\t\tshows this help")
-    pass
 
 if __name__ == '__main__':
     import argparse

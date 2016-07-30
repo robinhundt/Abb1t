@@ -4,61 +4,69 @@ from queue import *
 
 # other imports
 from lxml import html
+from requests.exceptions import Timeout
 import re
 import requests
 
-weekday_index = {d : i for i, d in enumerate(
-    ["su",
-     "mo",
-     "tu",
-     "we",
-     "th",
-     "fr",
-     "sa"]
+weekday_index = {d: i for i, d in enumerate(
+    ["su", "mo", "tu", "we", "th", "fr", "sa"]
 )}
 
+
 class mensa:
+
     def __init__(self, bot):
         self.bot = bot.bot
         self.description = """*/[ztib]?mensa* _<day>_ _<preference>_ - outputs the mensa menu for _<day>_ and _<preference>_
 where _<preference>_ can be fish, dessert, meat, vegan, veg (for vegetarian incl. vegan)"""
-        self.queue_in=Queue()
+        self.queue_in = Queue()
         thread.start_new_thread(self.run, ())
 
     def run(self):
         while True:
-            message = self.queue_in.get() # get() is blocking
+            message = self.queue_in.get()  # get() is blocking
             if not re.search(r'^/[ztib]?mensa', message.get_text()):
                 continue
+
+            to_match = re.search(r'timeout=(\d*\.?\d+)', message.get_text())
+            timeout = float(to_match.group(1)) if to_match else 2
 
             chat_id = message.get_chat_id()
             data, filtr = compute_query(message.get_text())
             reply = ""
-            for meal in filter(filtr, meal_list(data)):
-                reply += "*" + meal.title + "*\n"
-                reply += meal.description + "\n\n"
 
-            if reply == "":
-                reply = "Sadly you will have to starve :-("
+            try:
+                for meal in filter(filtr, meal_list(data, timeout)):
+                    reply += "*" + meal.title + "*\n"
+                    reply += meal.description + "\n\n"
+
+                if reply == "":
+                    reply = "Sadly you will have to starve :-("
+            except Timeout:
+                reply = "Mensa timed out."
 
             self.bot.sendMessage(chat_id, reply, parse_mode="Markdown")
 
-    def enqueue(self,msg):
+    def enqueue(self, msg):
         self.queue_in.put(msg)
 
-### Helper functions and classes for the bot
+# Helper functions and classes for the bot
+
+
 class Meal:
+
     """docstring for Meal"""
     __slots__ = ["title", "description", "religion"]
+
     def __init__(self, title, description, religion):
         self.title = re.sub(r'\([^)]*\)', '', title).strip()
         self.description = re.sub(r' \([^)]*\)', '', description).strip()
 
         # this order has meaning
-        if 'Vegan' in title + description:
-            self.religion = 'vegan'
-        elif 'Dessert' in title:
+        if 'Dessert' in title:
             self.religion = 'dessert'
+        elif 'Vegan' in title + description:
+            self.religion = 'vegan'
         elif 'fleischlos' in religion:
             self.religion = 'vegetarian'
         elif 'Fisch' in religion or 'MSC' in religion:
@@ -69,27 +77,35 @@ class Meal:
             self.religion = 'omnivor'
 
 
-def get_xpath(url, data, xpath):
-    page = requests.get(url, data)
+def get_xpath(url, data, xpath, timeout=None):
+    page = requests.get(url, data, timeout=timeout)
     tree = html.fromstring(page.content)
     return tree.xpath(xpath)
 
 
 def compute_query(message):
     mensa = re.search(r'^/[ztib]?mensa', message)
-    day   = re.search(r'\s(mo|tu|we|th|fr|sa|su)', message)
+    day = re.search(r'\s(mo|tu|we|th|fr|sa|su)', message)
     filtr = re.search(r'(vegan|veg|meat|fish|dessert)', message)
 
-    mensa  = {'/zmensa' : 'Zentralmensa', '/mensa' : 'Nordmensa', '/tmensa' : 'Mensa am Turm', '/imensa' : 'Mensa Italia', '/bmensa' : 'Bistro HAWK'}[mensa.group(0)]
-    day    = weekday_index[day.groups()[0]] if day else 31415 # if > 7 mensa return today
-    select = lambda a: filtr.group(0) in a.religion if filtr else lambda a: True
+    mensa = {
+        '/zmensa': 'Zentralmensa',
+        '/mensa': 'Nordmensa',
+        '/tmensa': 'Mensa am Turm',
+        '/imensa': 'Mensa Italia',
+        '/bmensa': 'Bistro HAWK'}[mensa.group(0)]
 
-    return {"selectmensa" : mensa, "push" : 0, "day" : day}, select
+    # if > 7 mensa return today
+    day = weekday_index[day.groups()[0]] if day else 31415
+    select = lambda a: filtr.group(
+        0) in a.religion if filtr else lambda a: True
+
+    return {"selectmensa": mensa, "push": 0, "day": day}, select
 
 
-def meal_list(data):
+def meal_list(data, timeout):
     for tr in get_xpath("http://www.studentenwerk-goettingen.de/speiseplan.html",
-                    data, '//*[@id="speise-main"]/table')[0]:
+                        data, '//*[@id="speise-main"]/table', timeout)[0]:
         menu = tr[0][0].text
 
         # there is nothing to eat on sundays
@@ -109,11 +125,12 @@ def meal_list(data):
 
         # parsing the description field
         # this code is weird because the Mensa Speiseplan is weird
-        description = [x.strip() for x in tr[1][0].text_content().strip().split("\r\n\t\t\r\n\t\t")]
-        if len(description) == 1: # For dessert and other not changing dishes
+        description = [
+            x.strip() for x in tr[1][0].text_content().strip().split("\r\n\t\t\r\n\t\t")]
+        if len(description) == 1:  # For dessert and other not changing dishes
             title = menu
             description = description[0].replace(", ", "\n")
-        else: # len(description) == 2 -- here comes everything else
+        else:  # len(description) == 2 -- here comes everything else
             title, description = description
 
         religion = tr[2][0].attrib['title']
