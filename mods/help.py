@@ -1,6 +1,7 @@
 #essential
 import _thread as thread
 from queue import *
+import re
 
 class help:
     def __init__(self, bot):

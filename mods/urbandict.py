@@ -1,7 +1,7 @@
 # essential
 import _thread as thread
-import re
 from queue import *
+import re
 
 # mod
 import urbandict as ud

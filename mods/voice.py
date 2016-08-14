@@ -1,6 +1,7 @@
 #essential
 import _thread as thread
 from queue import *
+import re
 
 #mod
 import gtts

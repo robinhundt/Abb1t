@@ -1,6 +1,7 @@
 #essential
 import _thread as thread
 from queue import *
+import re
 
 #mod
 from util.msg import Msg
@@ -88,7 +89,7 @@ class abb1t:
                 if (key != chat_id):
                     input("Error in your logfile!")
                 sent_id=msg.get_sent_id()
-                if text and text[0]!="/"  and msg.get_edit_date()==0 and not self.is_blacklisted(text) and (not self.find_name(text)) and chat_id and sent_id: #sadly, @like will come through
+                if text and text[0] not in ["/","!"]  and msg.get_edit_date()==0 and not self.is_blacklisted(text) and (not self.find_name(text)) and chat_id and sent_id: #sadly, @like will come through
                     if sent_id == prev_id:
                         self.speech[key][0][-1]+="\n{}".format(text)
                     else:
