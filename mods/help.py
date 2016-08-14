@@ -19,7 +19,7 @@ class help:
             chat_id=msg.get_chat_id()
             chat_type=msg.get_chat_type()
             reply=""
-            if msg.get_text().lower()=="/help":
+            if re.search(r'^(?:/|!)help$', msg.get_text().lower()):
                 for m in self.config.mods:
                     if chat_id in self.config.whitelist:
                         if not type(m).__name__ in self.config.whitelist[chat_id]:
@@ -31,7 +31,7 @@ class help:
                         else:
                             print("not allowed")
             if reply:
-                self.bot.sendMessage(chat_id,"*Usable modules for this {}:*{}".format(("group" if chat_type=="group" else "chat"),reply),parse_mode="Markdown")
+                self.bot.sendMessage(chat_id,"*Usable modules for this {}:*{}\n(Note: ! instead of / is possible as well.)".format(("group" if chat_type=="group" else "chat"),reply),parse_mode="Markdown")
 
     def enqueue(self,msg):
         self.queue_in.put(msg)

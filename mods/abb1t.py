@@ -106,7 +106,7 @@ class abb1t:
             if self.find_name(msg_text) and chat_id and chat_type!="private":
                 reply = self.generate_answer(self.replace_name(msg_text),chat_id)
                 if reply:
-                    self.bot.sendMessage(chat_id,reply,reply_to_message_id= msg.get_message_id())
+                    self.bot.sendMessage(chat_id,reply)
 
     def enqueue(self,msg):
         self.queue_in.put(msg)

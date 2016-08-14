@@ -23,7 +23,7 @@ class ifi:
     def run(self):
         while True:
             message = self.queue_in.get() # get() is blocking
-            if not re.search(r'^/ifi', message.get_text()):
+            if not re.search(r'^(?:/|!)ifi$', msg.get_text().lower()):
                 continue
 
             # Check if ifi could be requested again.

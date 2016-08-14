@@ -19,7 +19,7 @@ class urbandict:
     def run(self):
         while True:
             msg = self.queue_in.get()  # get() is blocking
-            match = re.search(r'^\/ud (.*)$', msg.get_text().lower())
+            match = re.search(r'^(?:/|!)ud (.*)$', msg.get_text().lower())
             if match:
                 self.bot.sendMessage(msg.get_chat_id(), self.decide(match))
 

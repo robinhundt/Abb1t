@@ -25,7 +25,7 @@ where _<preference>_ can be fish, dessert, meat, vegan, veg (for vegetarian incl
     def run(self):
         while True:
             message = self.queue_in.get()  # get() is blocking
-            if not re.search(r'^/[ztib]?mensa', message.get_text()):
+            if not re.search(r'^(?:/|!)[ztib]?mensa', message.get_text()):
                 continue
 
             to_match = re.search(r'timeout=(\d*\.?\d+)', message.get_text())
@@ -84,16 +84,16 @@ def get_xpath(url, data, xpath, timeout=None):
 
 
 def compute_query(message):
-    mensa = re.search(r'^/[ztib]?mensa', message)
+    mensa = re.search(r'^(?:/|!)[ztib]?mensa', message)
     day = re.search(r'\s(mo|tu|we|th|fr|sa|su)', message)
     filtr = re.search(r'(vegan|veg|meat|fish|dessert)', message)
 
     mensa = {
-        '/zmensa': 'Zentralmensa',
-        '/mensa': 'Nordmensa',
-        '/tmensa': 'Mensa am Turm',
-        '/imensa': 'Mensa Italia',
-        '/bmensa': 'Bistro HAWK'}[mensa.group(0)]
+        'zmensa': 'Zentralmensa',
+        'mensa': 'Nordmensa',
+        'tmensa': 'Mensa am Turm',
+        'imensa': 'Mensa Italia',
+        'bmensa': 'Bistro HAWK'}[mensa.group(0)[1:]]
 
     # if > 7 mensa return today
     day = weekday_index[day.groups()[0]] if day else 31415

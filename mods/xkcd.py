@@ -36,7 +36,7 @@ class xkcd:
             message = self.queue_in.get()  # get() is blocking
             message_text = message.get_text().lower()
             chat_id = message.get_chat_id()
-            match = re.search(r'^(\/xkcd) ?([1-9]\d+|r|rnd|rand|random|)$', message_text)
+            match = re.search(r'^((?:/|!)xkcd) ?([1-9]\d+|r|rnd|rand|random|)$', message_text)
             if match:
                 if not match.group(2):
                     self.getXKCD(chat_id, xkcd.get_total_number())
@@ -47,7 +47,7 @@ class xkcd:
                     self.getXKCD(chat_id, int(match.group(2)))
                 else:
                     self.bot.sendMessage(chat_id, "Sorry, this xkcd doesn't yet exist.")
-            elif re.search(r'^/xkcd toggle$', message_text):
+            elif re.search(r'^(?:/|!)xkcd toggle$', message_text):
                 print(self.chat_ids)
                 if chat_id not in self.chat_ids:
                     self.chat_ids.append(message.get_chat_id())
