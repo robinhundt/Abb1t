@@ -20,7 +20,7 @@ class help:
             chat_id=msg.get_chat_id()
             chat_type=msg.get_chat_type()
             reply=""
-            if re.search(r'^(?:/|!)help$', msg.get_text().lower()):
+            if re.search(r'^(?:/|!)help(|@abb1t_bot)$', msg.get_text().lower()):
                 for m in self.config.mods:
                     if chat_id in self.config.whitelist:
                         if not type(m).__name__ in self.config.whitelist[chat_id]:
