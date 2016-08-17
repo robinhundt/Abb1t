@@ -19,7 +19,7 @@ class bsmensa:
 
     def __init__(self, bot):
         self.bot = bot.bot
-        self.description = """*/bsmensa[1-3]{0,1}(|60)$* _<day>_ - outputs the mensa menu for _<day>_"""
+        self.description = """*/bsmensa([1-3]{1}|360)* _<day>_ - outputs the mensa menu for _<day>_"""
         self.queue_in = Queue()
         thread.start_new_thread(self.run, ())
 
@@ -36,7 +36,10 @@ class bsmensa:
             message_text = message.get_text().lower()
             message_id = message.get_message_id()
             
-            mensa = re.search(r'^(?:/|!)bsmensa[1-3]{0,1}(|60)$', message_text)
+            mensa = re.search(r'^(?:/|!)bsmensa([1-3]{1}|360)$', message_text)
+            if not mensa:
+                continue
+
             day = re.search(r'\s(mo|tu|we|th|fr|sa|su)', message_text)
             mensa_name = mensa.group(0)[1:]
             if mensa_name == 'bsmensa1':
@@ -45,7 +48,7 @@ class bsmensa:
             if mensa_name == 'bsmensa3':
                 mensa_name = 'bsmensa360'
             mensa_data = {
-                #'bsmensa1': ['http://www.stw-on.de/braunschweig/essen/menus/mensa-1', 2],
+                'bsmensa1': ['http://www.stw-on.de/braunschweig/essen/menus/mensa-1', 2],
                 'bsmensa2': ['http://www.stw-on.de/braunschweig/essen/menus/mensa-2', 1],
                 'bsmensa': ['http://www.stw-on.de/braunschweig/essen/menus/mensa-2', 1],
                 'bsmensa360': ['http://www.stw-on.de/braunschweig/essen/menus/360-2', 1],
@@ -57,7 +60,6 @@ class bsmensa:
 
             reply = ""
             try:
-                print("DAY ",day)
                 meals = self.meal_list(timeout, tables_per_day, day, url)
                 if not meals:
                     reply = "Sadly you will have to starve :-("
