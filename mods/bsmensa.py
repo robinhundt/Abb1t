@@ -26,7 +26,7 @@ class bsmensa:
     def run(self):
         while True:
             message = self.queue_in.get()  # get() is blocking
-            if not re.search(r'^(?:/|!)bsmensa[1-3]{0,1}(|60)$', message.get_text()):
+            if not re.search(r'^(?:/|!)bsmensa([1-3]{1}|360)', message.get_text()):
                 continue
 
             to_match = re.search(r'timeout=(\d*\.?\d+)', message.get_text())
@@ -36,7 +36,7 @@ class bsmensa:
             message_text = message.get_text().lower()
             message_id = message.get_message_id()
             
-            mensa = re.search(r'^(?:/|!)bsmensa([1-3]{1}|360)$', message_text)
+            mensa = re.search(r'^(?:/|!)bsmensa([1-3]{1}|360)', message_text)
             if not mensa:
                 continue
 
