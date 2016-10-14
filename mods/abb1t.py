@@ -77,7 +77,7 @@ class abb1t:
                 continue # why create dictionaries for private messages right now...
             logfile="{}.gz".format(os.path.join(self.logpath,str(key)))
             try:
-                ziplines=gzip.open(logfile).read().decode("utf-8").strip("\r\n").split("\n")
+                ziplines=gzip.open(logfile).read().decode("utf-8").strip("\r\n").split("\n")[-15000:]
             except IOError:
                 print("{} not found".format(logfile))
                 continue
