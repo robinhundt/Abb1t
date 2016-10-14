@@ -17,7 +17,7 @@ class mydealz:
 
     def __init__(self, bot):
         self.bot = bot.bot
-        self.description = r"""*/mydealz*$ - toggle to get freebie notifications"""
+        self.description = r"""*/mydealz* - toggle to get freebie notifications"""
         self.queue_in = Queue()
         self.chat_ids = []
         self.freebies = []
