@@ -52,7 +52,6 @@ class abb1t:
                 return ""
         return ""
 
-
     def find_name(self, msg_text):
         return msg_text.find("abb1t")>=0 or msg_text.find("abbit")>=0 or msg_text.find("abb0t")>=0 or msg_text.find("abbot")>=0
 

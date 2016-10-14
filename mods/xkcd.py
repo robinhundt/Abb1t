@@ -78,15 +78,18 @@ class xkcd:
             time.sleep(14400) # sleep 4hr
 
     def getXKCD(self, chat_id, number):
-        r = requests.get(xkcd_number.format(number)).json()
-        with tempfile.NamedTemporaryFile(suffix='png') as image:
-            image.write(requests.get(r[u'img']).content)
-            image.seek(0)
-            self.bot.sendMessage(
-                chat_id, "xkcd #{}: *{}*".format(r[u'num'], r[u'title']), parse_mode='Markdown')
-            self.bot.sendPhoto(chat_id, image, caption = r[u'alt'] if len(r[u'alt'])<200 else "")
-            if len(r[u'alt'])>=200:
-                self.bot.sendMessage(chat_id, r[u'alt'])
+        try:
+            r = requests.get(xkcd_number.format(number)).json()
+            with tempfile.NamedTemporaryFile(suffix='png') as image:
+                image.write(requests.get(r[u'img']).content)
+                image.seek(0)
+                self.bot.sendMessage(
+                    chat_id, "xkcd #{}: *{}*".format(r[u'num'], r[u'title']), parse_mode='Markdown')
+                self.bot.sendPhoto(chat_id, image, caption = r[u'alt'] if len(r[u'alt'])<200 else "")
+                if len(r[u'alt'])>=200:
+                    self.bot.sendMessage(chat_id, r[u'alt'])
+        except:
+            self.bot.sendMessage(chat_id,"Exception while parsing this one...")
 
     @staticmethod
     def get_total_number():
