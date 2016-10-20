@@ -20,6 +20,7 @@ class mydealz:
         self.description = r"""*/mydealz* - toggle to get freebie notifications"""
         self.queue_in = Queue()
         self.chat_ids = []
+        self.sent_already = [time.time()]
         self.freebies = []
         self.filename = "mydealz_chat_ids"
         try: 
@@ -68,10 +69,14 @@ class mydealz:
                 for a in self.get_xpath(mydealz.url,'//*[@class="cept-tt linkPlain space--r-1 space--v-1"]'):
                     freebies.append(a.text)
                     if self.freebies and a.text not in self.freebies: #set, and new freebie
-                        for chat_id in self.chat_ids: #this is not that performant... maybe change it in the future
-                            self.bot.sendMessage(chat_id, "New mydealz post: *{}* [»here«]({})".format(a.text,a.attrib['href']), parse_mode="Markdown")
+                        if a.attrib['href'] not in self.sent_already:
+                            for chat_id in self.chat_ids: #this is not that performant... maybe change it in the future
+                                self.sent_already.append(a.attrib['href'])
+                                self.bot.sendMessage(chat_id, "New mydealz post: *{}* [»here«]({})".format(a.text,a.attrib['href']), parse_mode="Markdown")
                 self.freebies=freebies
             time.sleep(300) # sleep 4hr
+            if time.time()-self.sent_already[0]>24*3600:
+                self.sent_already=[time.time()]
 
     @staticmethod
     def get_total_number():
