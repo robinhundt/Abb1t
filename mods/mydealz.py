@@ -58,9 +58,13 @@ class mydealz:
         self.queue_in.put(msg)
 
     def get_xpath(self, url, xpath):
-        page = requests.get(url)
-        tree = html.fromstring(page.content)
-        return tree.xpath(xpath)
+        try:
+            page = requests.get(url)
+            tree = html.fromstring(page.content)
+            return tree.xpath(xpath)
+        except:
+            return []
+
 
     def update(self):
         while True:
@@ -73,7 +77,7 @@ class mydealz:
                             for chat_id in self.chat_ids: #this is not that performant... maybe change it in the future
                                 self.sent_already.append(a.attrib['href'])
                                 self.bot.sendMessage(chat_id, "New mydealz post: *{}* [»here«]({})".format(a.text,a.attrib['href']), parse_mode="Markdown")
-                self.freebies=freebies
+                    self.freebies=freebies
             time.sleep(300) # sleep 4hr
             if time.time()-self.sent_already[0]>24*3600:
                 self.sent_already=[time.time()]
