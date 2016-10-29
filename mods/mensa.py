@@ -27,14 +27,14 @@ where _<preference>_ can be fish, dessert, meat, vegan, veg (for vegetarian incl
     def run(self):
         while True:
             message = self.queue_in.get()  # get() is blocking
-            if not re.search(r'^(?:/|!)[ztib]?mensa', message.get_text()):
+            if not re.search(r'^(?:/|!)[ztib]?mensa', message.get_text().lower()):
                 continue
 
-            to_match = re.search(r'timeout=(\d*\.?\d+)', message.get_text())
+            to_match = re.search(r'timeout=(\d*\.?\d+)', message.get_text().lower())
             timeout = float(to_match.group(1)) if to_match else 2
 
             chat_id = message.get_chat_id()
-            data, filtr = compute_query(message.get_text())
+            data, filtr = compute_query(message.get_text().lower())
             reply = ""
 
             try:
