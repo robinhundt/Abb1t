@@ -8,6 +8,7 @@ from lxml import html
 from requests.exceptions import Timeout
 import re
 import requests
+import datetime
 
 weekday_index = {d: i for i, d in enumerate(
     ["su", "mo", "tu", "we", "th", "fr", "sa"]
@@ -85,6 +86,7 @@ def get_xpath(url, data, xpath, timeout=None):
 
 
 def compute_query(message):
+    today_index = datetime.datetime.now().weekday()+1%7
     mensa = re.search(r'^(?:/|!)[ztib]?mensa', message)
     day = re.search(r'\s(mo|tu|we|th|fr|sa|su)', message)
     filtr = re.search(r'(vegan|veg|meat|fish|dessert)', message)
@@ -101,7 +103,11 @@ def compute_query(message):
     select = lambda a: filtr.group(
         0) in a.religion if filtr else lambda a: True
 
-    return {"selectmensa": mensa, "push": 0, "day": day}, select
+    push=0
+    if today_index>day:
+        push=1
+
+    return {"selectmensa": mensa, "push": push, "day": day}, select
 
 
 def meal_list(data, timeout):
