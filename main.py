@@ -38,11 +38,13 @@ class Telegrambot:
         chat_id = util_msg.get_chat_id()
         chat_type = util_msg.get_chat_type()
         msg_date = util_msg.get_date()
+        message_id = util_msg.get_message_id()
 
         if chat_id in self.whitelist:
             if self.overseer and chat_type=="private":
                 # report messages to overseer
                 self.bot.sendMessage(self.overseer,msg)
+                self.bot.forwardMessage(self.overseer,chat_id,message_id)
             for m in self.mods:
                 if type(m).__name__ not in self.whitelist[chat_id]:
                     if time.time()-msg_date<self.reactiontime:
