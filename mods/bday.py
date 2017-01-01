@@ -39,7 +39,7 @@ class bday:
 
     def __init__(self, bot):
         self.bot = bot.bot
-        self.description = r"bday insert <name> <dd.mm.yyyy>"
+        self.description = r"bday insert <name> <dd.mm>"
         self.queue_in = Queue()
         self.data_dir = 'bdays'
         self.chat_ids = []
@@ -59,7 +59,7 @@ class bday:
             message = self.queue_in.get()  # get() is blocking
             message_text = message.get_text()
             chat_id = message.get_chat_id()
-            regex = re.compile(r'^([!\/]bday) insert ([\w ]{2,30}) ((\d{2})[\/\.]?(\d{2})[\/\.]?(\d{4}))$')
+            regex = re.compile(r'^([!\/]bday) insert ([\w ]{2,30}) ((\d{2})[\/\.]?(\d{2}))$')
             match = re.search(regex, message_text)
             if match:
                 if not chat_id in self.chat_ids:
@@ -77,7 +77,7 @@ class bday:
 
     def happy_birthday(self):
         while True:
-            today = time.strftime("%d.%m.%Y")
+            today = time.strftime("%d.%m")
             for chat_id in self.chat_ids:
                 bdays = self.load(chat_id)
                 if today in bdays:
