@@ -3,6 +3,7 @@ import logging
 from util.msg import Msg
 from util.core import yn
 import time
+import sys
 
 class Telegrambot:
     def __init__(self, api_key, mods_, whitelist, overseer):
@@ -156,13 +157,17 @@ def main(args):
     bot=Telegrambot(api_key, mods, whitelist, overseer)
 
     while True:
-        cmd=input("> ")
-        if cmd=="exit":
-            return
-        elif cmd=="help":
-            print("Commands available:")
-            print("\texit\t\texits the python script")
-            print("\thelp\t\tshows this help")
+        try:
+            cmd = input("> ")
+            if cmd == "exit":
+                return
+            elif cmd == "help":
+                print("Commands available:")
+                print("\texit\t\texits the python script")
+                print("\thelp\t\tshows this help")
+        except (EOFError, KeyboardInterrupt, SystemError):
+            sys.exit("\nGoodbye.")
+
 
 if __name__ == '__main__':
     import argparse
