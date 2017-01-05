@@ -34,6 +34,30 @@ def seconds_until(until=9):
     then = time.localtime(now_sec + delta)
     return time.mktime(then) - time.time()
 
+class open_id:
+    """ a decorator for passing files to save and load functions.
+
+    Maybe this is an overkill, but I was bored.
+    """
+    def __init__(self, mode):
+        self.mode = mode
+
+    def __call__(self, func):
+        def wrapped(*args, **kwargs):
+            try:
+                fp = open(
+                    os.path.join(args[0].data_dir, "chat_%d.txt" % args[1]),
+                    self.mode
+                )
+                args = [args[0], fp] + list(args[2:])
+                # Make function call and return value
+                return func(*args, **kwargs)
+            except IOError as err:
+                io_action = 'read' if self.mode == 'r' else 'write to'
+                print("Could not %s file: %s occured." % (io_action, err))
+            finally:
+                fp.close()
+        return wrapped
 
 class bday:
 
@@ -43,10 +67,15 @@ class bday:
         self.queue_in = Queue()
         self.data_dir = 'bdays'
         self.chat_ids = []
-        self.load_chat_ids_bday()
 
+        # runs for the first time
         if not os.path.exists(self.data_dir):
             os.makedirs(self.data_dir)
+        if not os.path.exists(os.path.join(self.data_dir, "chat_ids.txt")):
+            open(os.path.join(self.data_dir, "chat_ids.txt"), 'a').close()
+
+        # load previously contacted chats
+        self.load_chat_ids_bday()
 
         thread.start_new_thread(self.run, ())
         thread.start_new_thread(self.happy_birthday, ())
@@ -59,21 +88,27 @@ class bday:
             message = self.queue_in.get()  # get() is blocking
             message_text = message.get_text()
             chat_id = message.get_chat_id()
-            regex = re.compile(r'^([!\/]bday) insert ([\w ]{2,30}) ((\d{2})[\/\.]?(\d{2}))$')
+            regex = re.compile(r'^([!\/]bday) (insert|remove) ([\w ]{2,30}) ([\.0-9]{5})$')
             match = re.search(regex, message_text)
-            if match:
+            if match and match.group(2) == 'insert':
+                date = match.group(4)
+                name = match.group(3)
+                try:
+                    time.strptime(date, '%d.%m')
+                except ValueError as err:
+                    self.bot.sendMessage(chat_id, "Wrong date format or date does not exist.")
+                    continue
+
+                # parsing was ok so we can continue
                 if not chat_id in self.chat_ids:
                     self.add_chat_id(chat_id)
-                date = match.group(3)
-                name = match.group(2)
                 bdays = self.load(chat_id)
                 if not date in bdays:
                     bdays[date] = [name]
                 else:
                     bdays[date].append(name)
                 self.save(chat_id, bdays)
-
-                self.bot.sendMessage(message.get_chat_id(), "Got it.")
+                self.bot.sendMessage(chat_id, "Got it.")
 
     def happy_birthday(self):
         while True:
@@ -85,27 +120,21 @@ class bday:
                     self.bot.sendMessage(chat_id, bdmsg)
             time.sleep(seconds_until())  # sleep until 9 o'clock
 
-    def load(self, chat_id):
+    @open_id('r')
+    def load(self, chat_id_file):
         bdays = {}
-        try:
-            with open(os.path.join(self.data_dir, "chat_%d.txt" % chat_id), 'r') as f:
-                for line in f:
-                    date, names = line.strip().split(' = ')
-                    bdays[date] = names.split(',')
-        except IOError as e:
-            print("Could not load file: %s occured." % e)
+        for line in chat_id_file:
+            date, names = line.strip().split(' = ')
+            bdays[date] = names.split(',')
         return bdays
 
-    def save(self, chat_id, bdays):
-        with open(os.path.join(self.data_dir, "chat_%d.txt" % chat_id), 'w') as f:
-            f.write('\n'.join("%s = %s" % (d, ','.join(n)) for d, n in bdays.items()))
+    @open_id('w')
+    def save(self, chat_id_file, bdays):
+        chat_id_file.write('\n'.join("%s = %s" % (d, ','.join(n)) for d, n in bdays.items()))
 
     def load_chat_ids_bday(self):
-        try:
-            with open(os.path.join(self.data_dir, "chat_ids.txt")) as f:
-                self.chat_ids = list(map(int, f))
-        except IOError as e:
-            print("Could not load chat_id file: %s occured." % e)
+        with open(os.path.join(self.data_dir, "chat_ids.txt")) as f:
+            self.chat_ids = [int(line) for line in f]
 
     def add_chat_id(self, chat_id):
         self.chat_ids.append(chat_id)
