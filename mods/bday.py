@@ -63,7 +63,7 @@ class bday:
 
     def __init__(self, bot):
         self.bot = bot.bot
-        self.description = r"bday insert <name> <dd.mm>"
+        self.description = r"*/bday* (insert|remove) _<name>_ _<dd.mm>_ - Add or remove a person to the daily birthday reminder"
         self.queue_in = Queue()
         self.data_dir = 'bdays'
         self.chat_ids = []
@@ -92,7 +92,7 @@ class bday:
             match = re.search(regex, message_text)
             if match and match.group(2) == 'insert':
                 date = match.group(4)
-                name = match.group(3)
+                name = match.group(3).title()
                 try:
                     time.strptime(date, '%d.%m')
                 except ValueError as err:
