@@ -63,7 +63,7 @@ class bday:
 
     def __init__(self, bot):
         self.bot = bot.bot
-        self.description = r"*/bday* (insert|remove) _<name>_ _<dd.mm>_ - Add or remove a person to the daily birthday reminder"
+        self.description = r"*/bday* (insert|remove) _<name>_ _<dd.mm>_ - Add or remove a person to the daily birthday reminder _(removing not implemented yet)_"
         self.queue_in = Queue()
         self.data_dir = 'bdays'
         self.chat_ids = []
