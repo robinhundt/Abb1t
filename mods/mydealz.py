@@ -10,20 +10,28 @@ import requests
 import random
 import tempfile
 import time
-
+import os
 
 class mydealz:
     url = "https://www.mydealz.de/freebies"
-    min_temp = 250
+    try:
+        min_temp = int(open("./mydealz/temperature").read())
+    except:
+        min_temp = 350
+        print("[!] no min_temp for mydealz set, loading default: {}".format(min_temp))
 
     def __init__(self, bot):
         self.bot = bot.bot
-        self.description = r"""*/mydealz* - toggle to get freebie notifications"""
+        self.description = r"""*/mydealz* - toggle to get freebie notifications, use */mydealztemp* to define a minimum heat of deals"""
         self.queue_in = Queue()
         self.chat_ids = []
         self.sent_already = [time.time()]
         self.freebies = []
-        self.filename = "mydealz_chat_ids"
+        try:
+            os.mkdir("mydealz")
+        except OSError:
+            pass #dir exists.
+        self.filename = "./mydealz/mydealz_chat_ids"
         try: 
             with open(self.filename) as f:
                 chat_ids=f.read()
@@ -49,6 +57,17 @@ class mydealz:
                     self.chat_ids.remove(message.get_chat_id())
                     self.bot.sendMessage(message.get_chat_id(), "Deleted your chat\_id from the *mydealz ticker*", parse_mode="Markdown")
                 self.save_ids()
+            else:
+                match = re.search(r'^(?:/|!)mydealztemp (\d{0,5})$', message_text)
+                prev = mydealz.min_temp
+                mydealz.min_temp = int(match.group(1))
+                if prev != mydealz.min_temp: #something changed:
+                    with open("./mydealz/temperature","w") as fw:
+                        fw.write("{}".format(mydealz.min_temp))
+                    self.bot.sendMessage(message.get_chat_id(), "Changed minimum temperature of freebies from *{}°* to *{}°*.".format(prev,mydealz.min_temp), parse_mode="Markdown")
+                else:
+                    self.bot.sendMessage(message.get_chat_id(), "Minimum temperature is already at *{}°*!".format(mydealz.min_temp), parse_mode="Markdown")
+
 
     def save_ids(self):
         with open(self.filename,"w") as fw:
@@ -73,7 +92,7 @@ class mydealz:
                 freebies = []
                 temperatures = self.get_xpath(mydealz.url,"//strong[contains(@class,'vote-temp tGrid-cell vAlign--all-m text--b')]")
                 for a,temp in zip(self.get_xpath(mydealz.url,'//*[@class="cept-tt linkPlain space--r-1 space--v-1"]'),temperatures):
-                    if int(temp.text[:-1])>mydealz.min_temp:
+                    if int(temp.text[:-1])>=mydealz.min_temp:
                         freebies.append(a.text)
                         if self.freebies and a.text not in self.freebies: #set, and new freebie
                             if a.attrib['href'] not in self.sent_already:
