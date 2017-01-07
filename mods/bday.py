@@ -116,8 +116,8 @@ class bday:
             for chat_id in self.chat_ids:
                 bdays = self.load(chat_id)
                 if today in bdays:
-                    bdmsg = "%s has/have birthday today! 🍰🙌🎂🎈🎉🕯🎁" % ', '.join(bdays[today])
-                    self.bot.sendMessage(chat_id, bdmsg)
+                    bdmsg = "*{}* {} birthday today! 🍰🙌🎂🎈🎉🕯🎁".format(', '.join(bdays[today]),"has" if len(bdays[today])==1 else "have")
+                    self.bot.sendMessage(chat_id, bdmsg, parse_mode="Markdown")
             time.sleep(seconds_until())  # sleep until 9 o'clock
 
     @open_id('r')
