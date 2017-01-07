@@ -59,14 +59,17 @@ class mydealz:
                 self.save_ids()
             else:
                 match = re.search(r'^(?:/|!)mydealztemp (\d{0,5})$', message_text)
-                prev = mydealz.min_temp
-                mydealz.min_temp = int(match.group(1))
-                if prev != mydealz.min_temp: #something changed:
-                    with open("./mydealz/temperature","w") as fw:
-                        fw.write("{}".format(mydealz.min_temp))
-                    self.bot.sendMessage(message.get_chat_id(), "Changed minimum temperature of freebies from *{}°* to *{}°*.".format(prev,mydealz.min_temp), parse_mode="Markdown")
-                else:
-                    self.bot.sendMessage(message.get_chat_id(), "Minimum temperature is already at *{}°*!".format(mydealz.min_temp), parse_mode="Markdown")
+                if match and match.group(1):
+                    prev = mydealz.min_temp
+                    new = int(match.group(1))
+                    if new >= 0:
+                        mydealz.min_temp = new
+                        if prev != new: #something changed:
+                            with open("./mydealz/temperature","w") as fw:
+                                fw.write("{}".format(mydealz.min_temp))
+                            self.bot.sendMessage(message.get_chat_id(), "Changed minimum temperature of freebies from *{}°* to *{}°*.".format(prev,mydealz.min_temp), parse_mode="Markdown")
+                        else:
+                            self.bot.sendMessage(message.get_chat_id(), "Minimum temperature is already at *{}°*!".format(mydealz.min_temp), parse_mode="Markdown")
 
 
     def save_ids(self):
