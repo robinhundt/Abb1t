@@ -23,7 +23,7 @@ class voice:
             chat_id=msg.get_chat_id()
             if re.search(r'^(?:/|!)voice ', msg.get_text().lower()) and len(msg.get_text().split(" "))>=2:
                 tts=msg.get_text().split(" ",1)[1].lower().replace("Ä","ae").replace("ä","ae").replace("Ü","ue").replace("ü","ue").replace("Ö","oe").replace("ö","oe").replace("ß","ss")
-                with tempfile.TemporaryFile() as temporaryfile:
+                with tempfile.NamedTemporaryFile(suffix=".mp3") as temporaryfile:
                     gtts.gTTS(text=tts,lang="de").write_to_fp(temporaryfile)
                     temporaryfile.seek(0)
                     self.bot.sendAudio(chat_id,temporaryfile,title="Abb1tvoice")
