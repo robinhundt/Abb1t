@@ -32,7 +32,7 @@ class Telegrambot:
     def recv(self,msg):
         logging.debug(msg)
 
-        # the util msg is create once! for all mods.
+        # the util msg is created once! for all mods.
         # please copy it in the mod before editing
         util_msg = Msg(msg)
 
