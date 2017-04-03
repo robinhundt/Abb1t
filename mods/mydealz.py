@@ -91,21 +91,24 @@ class mydealz:
 
     def update(self):
         while True:
-            if self.chat_ids: # refresh only if someone needs the freebie...
-                freebies = []
-                temperatures = self.get_xpath(mydealz.url,"//strong[contains(@class,'vote-temp tGrid-cell vAlign--all-m text--b')]")
-                for a,temp in zip(self.get_xpath(mydealz.url,'//*[@class="vwo-thread-title cept-tt linkPlain space--r-1 space--v-1"]'),temperatures):
-                    if int(temp.text[:-1])>=mydealz.min_temp:
-                        freebies.append(a.text)
-                        if self.freebies and a.text not in self.freebies: #set, and new freebie
-                            if a.attrib['href'] not in self.sent_already:
-                                for chat_id in self.chat_ids: #this is not that performant... maybe change it in the future
-                                    self.sent_already.append(a.attrib['href'])
-                                    self.bot.sendMessage(chat_id, "New mydealz post (*{}*): *{}* [»here«]({})".format(temp.text,a.text,a.attrib['href']), parse_mode="Markdown")
-                self.freebies=freebies
-            time.sleep(300) # sleep 5min
-            if time.time()-self.sent_already[0]>24*3600: #deals may be resend each 24h
-                self.sent_already=[time.time()]
+            try:
+                if self.chat_ids: # refresh only if someone needs the freebie...
+                    freebies = []
+                    temperatures = self.get_xpath(mydealz.url,"//strong[contains(@class,'vote-temp tGrid-cell vAlign--all-m text--b')]")
+                    for a,temp in zip(self.get_xpath(mydealz.url,'//*[@class="vwo-thread-title cept-tt linkPlain space--r-1 space--v-1"]'),temperatures):
+                        if int(temp.text[:-1])>=mydealz.min_temp:
+                            freebies.append(a.text)
+                            if self.freebies and a.text not in self.freebies: #set, and new freebie
+                                if a.attrib['href'] not in self.sent_already:
+                                    for chat_id in self.chat_ids: #this is not that performant... maybe change it in the future
+                                        self.sent_already.append(a.attrib['href'])
+                                        self.bot.sendMessage(chat_id, "New mydealz post (*{}*): *{}* [»here«]({})".format(temp.text,a.text,a.attrib['href']), parse_mode="Markdown")
+                    self.freebies=freebies
+                time.sleep(300) # sleep 5min
+                if time.time()-self.sent_already[0]>24*3600: #deals may be resend each 24h
+                    self.sent_already=[time.time()]
+            except:
+                pass
 
     @staticmethod
     def get_total_number():
