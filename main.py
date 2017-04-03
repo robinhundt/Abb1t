@@ -45,7 +45,10 @@ class Telegrambot:
             if self.overseer and chat_type=="private":
                 # report messages to overseer
                 self.bot.sendMessage(self.overseer,msg)
-                self.bot.forwardMessage(self.overseer,chat_id,message_id)
+                try:
+                    self.bot.forwardMessage(self.overseer,chat_id,message_id)
+                except telepot.exception.TelegramError:
+                    print("this message cannot be forwarded (e.g. member join): {}".format(msg))
             for m in self.mods:
                 if type(m).__name__ not in self.whitelist[chat_id]:
                     if time.time()-msg_date<self.reactiontime:
