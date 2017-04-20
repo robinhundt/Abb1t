@@ -1,0 +1,7 @@
+lxml
+sklearn
+wikipedia
+numpy
+scipy
+selenium
+urbandict
