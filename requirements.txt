@@ -6,3 +6,4 @@ scipy
 selenium
 urbandict
 telepot
+gtts
