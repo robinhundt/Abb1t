@@ -49,6 +49,7 @@ class location:
                     kilometers = vincenty(dist_target,dist_guess).meters / 1000.0
                     #print(kilometers)
                     results[name] = kilometers
+                reply+="Location: *{}*\n\nResults:\n".format(self.running_games[chat_id][1])
                 for key in sorted(results):
                     reply+="{0}: *{1:.2f}* km\n".format(key,results[key])
                 self.bot.sendMessage(chat_id,reply,parse_mode="Markdown")
