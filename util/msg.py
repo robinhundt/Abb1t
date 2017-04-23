@@ -20,6 +20,13 @@ class Msg:
             return ''
 
     """get the forename of the person that sent the message"""
+    def get_from_username(self):
+        try:
+            return self.raw_msg['from']['username']
+        except KeyError:
+            return ''
+
+    """get the forename of the person that sent the message"""
     def get_from_first_name(self):
         try:
             return self.raw_msg['from']['first_name']
