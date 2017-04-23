@@ -11,7 +11,7 @@ from geopy.distance import vincenty
 class location:
     def __init__(self, bot):
         self.bot = bot.bot
-        self.description = "*/locationgame* - guess the location of a random photo"
+        self.description = "*/lgame* - guess the location of a random photo, */lstop* to post results"
         self.queue_in=Queue()
         #self.queue_out=Queue()
         thread.start_new_thread(self.run,())
@@ -48,10 +48,12 @@ class location:
                     dist_guess = (self.running_games_guesses[chat_id][guesser]['lat'],self.running_games_guesses[chat_id][guesser]['lon'])
                     kilometers = vincenty(dist_target,dist_guess).meters / 1000.0
                     #print(kilometers)
-                    results[name] = kilometers
+                    name = self.running_games_guesses[chat_id][guesser]['name']
+                    results[kilometers] = name
+                #print(results)
                 reply+="Location: *{}*\n\nResults:\n".format(self.running_games[chat_id][1])
                 for key in sorted(results):
-                    reply+="{0}: *{1:.2f}* km\n".format(key,results[key])
+                    reply+="{0}: *{1:.2f}* km\n".format(results[key],key)
                 self.bot.sendMessage(chat_id,reply,parse_mode="Markdown")
                 del self.running_games[chat_id]
             else:
