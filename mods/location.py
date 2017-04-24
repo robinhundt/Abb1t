@@ -91,7 +91,7 @@ class location:
                         results[kilometers] = name
                     #print(results)
                     reply+="Location: *{}*\n\nResults:\n".format(self.running_games[chat_id][1])
-                    participants = 5#len(results)
+                    participants = len(results)
                     if chat_id not in self.scoreboard:
                         self.scoreboard[chat_id] = {}
                     for i,key in enumerate(sorted(results)):
