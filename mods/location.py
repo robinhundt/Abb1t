@@ -7,6 +7,7 @@ import re
 import time
 import random
 from geopy.distance import vincenty
+import json
 
 class location:
     def __init__(self, bot):
@@ -18,13 +19,44 @@ class location:
         self.locations = open("./locationgame/locations.csv").read().strip(" \n\r").splitlines() #id,name,lat,lon,url
         self.running_games = {} #per group, one at a time...
         self.running_games_guesses = {} #per group, save all guesses
+        self.POINTTHRESHOLD = 1000.0
+        self.scoreboard_name = "./locationgame/scoreboard.json"
+        self.scoreboard = self.load_scores(self.scoreboard_name)
         #self.resttime=0
         #self.lastcmd=0
+
+    def load_scores(self,fname):
+        try:
+            with open(fname) as f:
+                return json.loads(f.read())
+        except Exception as e:
+            print("Load scores exception: {}".format(e))
+        return {}
+
+    def save_scores(self,fname):
+        try:
+            with open(fname,"w") as fw:
+                fw.write(json.dumps(self.scoreboard))
+        except Exception as e:
+            print("Write scores exception: {}".format(e))
+
+    def print_scores(self,chat_id):
+        reply ="`==================`\n"
+        reply+="`===Hall=of=Fame===`\n"
+        reply+="`==================`\n"
+        if chat_id in self.scoreboard:
+            data = self.scoreboard[chat_id]
+            data_sorted = sorted(data.items(), key=lambda x:x[1])
+            for d in data_sorted[::-1]:
+                reply+="*{}*: {}\n".format(d[0],d[1])
+            return reply
+        else:
+            return ""
 
     def run(self):
         while 1: 
             msg=self.queue_in.get() # get() is blocking
-            chat_id=msg.get_chat_id()
+            chat_id=str(msg.get_chat_id())
             from_id=msg.get_from_id()
             text = msg.get_text().lower()
             if re.search(r'^(?:/|!)lgame$', text):
@@ -39,6 +71,10 @@ class location:
                     self.bot.sendMessage(chat_id,reply,parse_mode="Markdown")
                     #print(self.running_games[chat_id][-1])
                     self.bot.sendPhoto(chat_id,self.running_games[chat_id][-1])
+            elif re.search(r'^(?:/|!)lscores$', text):
+                reply = self.print_scores(chat_id)
+                if reply:
+                    self.bot.sendMessage(chat_id,reply,parse_mode="Markdown")
             elif re.search(r'^(?:/|!)lstop$', text):
                 if not chat_id in self.running_games:
                     reply = "Game not running..."
@@ -55,10 +91,31 @@ class location:
                         results[kilometers] = name
                     #print(results)
                     reply+="Location: *{}*\n\nResults:\n".format(self.running_games[chat_id][1])
-                    for key in sorted(results):
-                        reply+="{0}: *{1:.2f}* km\n".format(results[key],key)
+                    participants = 5#len(results)
+                    if chat_id not in self.scoreboard:
+                        self.scoreboard[chat_id] = {}
+                    for i,key in enumerate(sorted(results)):
+                        guesser_name = results[key]
+                        if participants>=3: #only if 3 or more play
+                            guesser_score = 0
+                            if not guesser_name in self.scoreboard[chat_id]:
+                                self.scoreboard[chat_id][guesser_name] = 0
+                            #scoreboard
+                            if i == 0: #best one
+                                self.scoreboard[chat_id][guesser_name] += 1
+                                guesser_score+=1
+                            if key < self.POINTTHRESHOLD: #still okay
+                                self.scoreboard[chat_id][guesser_name] += 1
+                                guesser_score+=1
+                            if participants-1 == i: #last one
+                                self.scoreboard[chat_id][guesser_name] -= 1
+                                guesser_score-=1
+                            reply+="{0}: *{1:.2f}* km (scored *{2}*)\n".format(guesser_name,key,guesser_score)
+                        else:
+                            reply+="{0}: *{1:.2f}* km\n".format(guesser_name,key)
                     self.bot.sendMessage(chat_id,reply,parse_mode="Markdown")
                     self.bot.sendLocation(chat_id,dist_target[0],dist_target[1])
+                    self.save_scores(self.scoreboard_name)
                     del self.running_games[chat_id]
             else:
                 if chat_id in self.running_games: #only take locations if game is running
