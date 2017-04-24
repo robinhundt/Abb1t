@@ -58,7 +58,7 @@ class location:
                     for key in sorted(results):
                         reply+="{0}: *{1:.2f}* km\n".format(results[key],key)
                     self.bot.sendMessage(chat_id,reply,parse_mode="Markdown")
-                    self.bot.sendLocation(chat_id,reply,dist_target[0],dist_target[1])
+                    self.bot.sendLocation(chat_id,dist_target[0],dist_target[1])
                     del self.running_games[chat_id]
             else:
                 if chat_id in self.running_games: #only take locations if game is running
