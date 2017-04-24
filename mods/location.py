@@ -42,7 +42,7 @@ class location:
             elif re.search(r'^(?:/|!)lstop$', text):
                 if not chat_id in self.running_games:
                     reply = "Game not running..."
-                    else:
+                else:
                     reply=""
                     results = {}
                     dist_target = (float(self.running_games[chat_id][2]),float(self.running_games[chat_id][3]))
