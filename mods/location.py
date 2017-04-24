@@ -40,22 +40,26 @@ class location:
                     #print(self.running_games[chat_id][-1])
                     self.bot.sendPhoto(chat_id,self.running_games[chat_id][-1])
             elif re.search(r'^(?:/|!)lstop$', text):
-                reply=""
-                results = {}
-                dist_target = (float(self.running_games[chat_id][2]),float(self.running_games[chat_id][3]))
-                for guesser in self.running_games_guesses[chat_id]:
-                    #print(guesser, self.running_games_guesses[chat_id][guesser])
-                    dist_guess = (self.running_games_guesses[chat_id][guesser]['lat'],self.running_games_guesses[chat_id][guesser]['lon'])
-                    kilometers = vincenty(dist_target,dist_guess).meters / 1000.0
-                    #print(kilometers)
-                    name = self.running_games_guesses[chat_id][guesser]['name']
-                    results[kilometers] = name
-                #print(results)
-                reply+="Location: *{}*\n\nResults:\n".format(self.running_games[chat_id][1])
-                for key in sorted(results):
-                    reply+="{0}: *{1:.2f}* km\n".format(results[key],key)
-                self.bot.sendMessage(chat_id,reply,parse_mode="Markdown")
-                del self.running_games[chat_id]
+                if not chat_id in self.running_games:
+                    reply = "Game not running..."
+                    else:
+                    reply=""
+                    results = {}
+                    dist_target = (float(self.running_games[chat_id][2]),float(self.running_games[chat_id][3]))
+                    for guesser in self.running_games_guesses[chat_id]:
+                        #print(guesser, self.running_games_guesses[chat_id][guesser])
+                        dist_guess = (self.running_games_guesses[chat_id][guesser]['lat'],self.running_games_guesses[chat_id][guesser]['lon'])
+                        kilometers = vincenty(dist_target,dist_guess).meters / 1000.0
+                        #print(kilometers)
+                        name = self.running_games_guesses[chat_id][guesser]['name']
+                        results[kilometers] = name
+                    #print(results)
+                    reply+="Location: *{}*\n\nResults:\n".format(self.running_games[chat_id][1])
+                    for key in sorted(results):
+                        reply+="{0}: *{1:.2f}* km\n".format(results[key],key)
+                    self.bot.sendMessage(chat_id,reply,parse_mode="Markdown")
+                    self.bot.sendLocation(chat_id,reply,dist_target[0],dist_target[1])
+                    del self.running_games[chat_id]
             else:
                 if chat_id in self.running_games: #only take locations if game is running
                     if "location" in msg.raw_msg:
