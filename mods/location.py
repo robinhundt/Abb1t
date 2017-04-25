@@ -47,12 +47,7 @@ class location:
         reply+="`==================`\n"
         if chat_id in self.scoreboard:
             data = self.scoreboard[chat_id]
-            print(data)
-            print(data.items())
             data_sorted = sorted(data.items(), key=lambda x:x[1]['score'])
-            print(data_sorted)
-            print(data_sorted)
-            print(data_sorted)
             for d in data_sorted[::-1]:
                 r=d[1]
                 print(r)
