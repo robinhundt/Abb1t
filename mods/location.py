@@ -19,6 +19,7 @@ class location:
         self.locations = open("./locationgame/locations.csv").read().strip(" \n\r").splitlines() #id,name,lat,lon,url
         self.running_games = {} #per group, one at a time...
         self.running_games_guesses = {} #per group, save all guesses
+        self.running_games_guesses_names = {} #per group, save all guesses
         self.POINTTHRESHOLD = 1000.0
         self.scoreboard_name = "./locationgame/scoreboard.json"
         self.scoreboard = self.load_scores(self.scoreboard_name)
@@ -46,9 +47,17 @@ class location:
         reply+="`==================`\n"
         if chat_id in self.scoreboard:
             data = self.scoreboard[chat_id]
-            data_sorted = sorted(data.items(), key=lambda x:x[1])
+            print(data)
+            print(data.items())
+            data_sorted = sorted(data.items(), key=lambda x:x[1]['score'])
+            print(data_sorted)
+            print(data_sorted)
+            print(data_sorted)
             for d in data_sorted[::-1]:
-                reply+="*{}*: {}\n".format(d[0],d[1])
+                r=d[1]
+                print(r)
+                #r = d[d.keys()[0]]
+                reply+="*{}*: {} (played *{}* {})\n".format(r['name'],r['score'],r['times'],"times" if r['times']!=1 else 'time')
             return reply
         else:
             return ""
@@ -67,10 +76,11 @@ class location:
                     index = random.randint(0,len(self.locations)-1)
                     self.running_games[chat_id] = self.locations[index].split(";")
                     self.running_games_guesses[chat_id] = {} #each from_id has an own dict
-                    reply = "*New game started*... Guess, where this picture was taken:"
+                    url = self.running_games[chat_id][-1]
+                    reply = "*New game started*... Guess, where this picture was taken: {}".format(url)
                     self.bot.sendMessage(chat_id,reply,parse_mode="Markdown")
                     #print(self.running_games[chat_id][-1])
-                    self.bot.sendPhoto(chat_id,self.running_games[chat_id][-1])
+                    #self.bot.sendPhoto(chat_id,self.running_games[chat_id][-1])
             elif re.search(r'^(?:/|!)lscores$', text):
                 reply = self.print_scores(chat_id)
                 if reply:
@@ -88,28 +98,34 @@ class location:
                         kilometers = vincenty(dist_target,dist_guess).meters / 1000.0
                         #print(kilometers)
                         name = self.running_games_guesses[chat_id][guesser]['name']
-                        results[kilometers] = name
+                        from_id_guess = self.running_games_guesses[chat_id][guesser]['from_id']
+                        results[kilometers] = [name,from_id_guess]
                     #print(results)
                     reply+="Location: *{}*\n\nResults:\n".format(self.running_games[chat_id][1])
                     participants = len(results)
                     if chat_id not in self.scoreboard:
                         self.scoreboard[chat_id] = {}
                     for i,key in enumerate(sorted(results)):
-                        guesser_name = results[key]
-                        if participants>=3: #only if 3 or more play
+                        guesser_name = results[key][0]
+                        guesser_id = str(results[key][1])
+                        if participants>=0: #only if 3 or more play
                             guesser_score = 0
-                            if not guesser_name in self.scoreboard[chat_id]:
-                                self.scoreboard[chat_id][guesser_name] = 0
+                            if not guesser_id in self.scoreboard[chat_id]:
+                                self.scoreboard[chat_id][guesser_id] = {}
+                                self.scoreboard[chat_id][guesser_id]['score'] = 0
+                                self.scoreboard[chat_id][guesser_id]['times'] = 0
+                            self.scoreboard[chat_id][guesser_id]['name'] = guesser_name #set this one each time
                             #scoreboard
                             if i == 0: #best one
-                                self.scoreboard[chat_id][guesser_name] += 1
+                                self.scoreboard[chat_id][guesser_id]['score'] += 1
                                 guesser_score+=1
                             if key < self.POINTTHRESHOLD: #still okay
-                                self.scoreboard[chat_id][guesser_name] += 1
+                                self.scoreboard[chat_id][guesser_id]['score'] += 1
                                 guesser_score+=1
                             if participants-1 == i: #last one
-                                self.scoreboard[chat_id][guesser_name] -= 1
+                                self.scoreboard[chat_id][guesser_id]['score'] -= 1
                                 guesser_score-=1
+                            self.scoreboard[chat_id][guesser_id]['times']+=1 #increment 1 for each game played
                             reply+="{0}: *{1:.2f}* km (scored *{2}*)\n".format(guesser_name,key,guesser_score)
                         else:
                             reply+="{0}: *{1:.2f}* km\n".format(guesser_name,key)
@@ -129,7 +145,10 @@ class location:
                             lname = msg.get_from_last_name()
                             name = "{} {}".format(fname,lname)
                         #print(name)
-                        self.running_games_guesses[chat_id][from_id] = {"name":name,"lat":lat,"lon":lon} #using from_id, so namechanges do not matter
+                        if from_id not in self.running_games_guesses[chat_id]:
+                            self.running_games_guesses[chat_id][from_id] = {"name":name,"lat":lat,"lon":lon, "from_id":str(from_id)} #using from_id, so namechanges do not matter
+                            self.bot.sendMessage(chat_id,"Thanks for your guess, {}!".format(name))
+
                         #print(self.running_games_guesses[chat_id][from_id])
 
 
