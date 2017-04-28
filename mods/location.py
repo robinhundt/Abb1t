@@ -52,7 +52,7 @@ class location:
                 r=d[1]
                 print(r)
                 #r = d[d.keys()[0]]
-                reply+="*{}*: {} (played *{}* {})\n".format(r['name'],r['score'],r['times'],"times" if r['times']!=1 else 'time')
+                reply+="{}: {} (played *{}* {}, average: {:.2f})\n".format(r['name'],r['score'],r['times'],"times" if r['times']!=1 else 'time',r['score']*1.0/r['times'])
             return reply
         else:
             return ""
