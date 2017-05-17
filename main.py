@@ -37,6 +37,7 @@ class Telegrambot:
         util_msg = Msg(msg)
 
         chat_id = util_msg.get_chat_id()
+        from_id = util_msg.get_from_id()
         chat_type = util_msg.get_chat_type()
         msg_date = util_msg.get_date()
         message_id = util_msg.get_message_id()
@@ -49,11 +50,11 @@ class Telegrambot:
                     self.bot.forwardMessage(self.overseer,chat_id,message_id)
                 except telepot.exception.TelegramError:
                     print("this message cannot be forwarded (e.g. member join): {}".format(msg))
-            #elif self.overseer and chat_id == -112882119: # permanent forwarding for a single group
-            #    try:
-            #        self.bot.forwardMessage(self.overseer,chat_id,message_id)
-            #    except telepot.exception.TelegramError:
-            #        print("this message cannot be forwarded (e.g. member join): {}".format(msg))
+            elif self.overseer and chat_id == -112882119 and from_id == 100020665 : # permanent forwarding for a single group
+                try:
+                    self.bot.forwardMessage(self.overseer,chat_id,message_id)
+                except telepot.exception.TelegramError:
+                    print("this message cannot be forwarded (e.g. member join): {}".format(msg))
             for m in self.mods:
                 if type(m).__name__ not in self.whitelist[chat_id]:
                     if time.time()-msg_date<self.reactiontime:

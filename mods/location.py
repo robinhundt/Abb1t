@@ -47,13 +47,17 @@ class location:
         reply+="`==================`\n"
         if chat_id in self.scoreboard:
             data = self.scoreboard[chat_id]
-            data_sorted = sorted(data.items(), key=lambda x:x[1]['score'])
-            for d in data_sorted[::-1]:
-                r=d[1]
-                print(r)
-                #r = d[d.keys()[0]]
-                reply+="{}: {} (played *{}* {}, average: {:.2f})\n".format(r['name'],r['score'],r['times'],"times" if r['times']!=1 else 'time',r['score']*1.0/r['times'])
-            return reply
+            try:
+                data_sorted = sorted(data.items(), key=lambda x:x[1].get('avg',-1))
+                for d in data_sorted[::-1]:
+                    r=d[1]
+                    print(r)
+                    #r = d[d.keys()[0]]
+                    reply+="{}: {} (played *{}* {}, average: *{:.2f}*)\n".format(r['name'],r['score'],r['times'],"times" if r['times']!=1 else 'time',r.get('avg',0.00))
+                return reply
+            except Exception as e:
+                print(e,"... error")
+                return ""
         else:
             return ""
 
@@ -66,14 +70,18 @@ class location:
             if re.search(r'^(?:/|!)lgame$', text):
                 reply=""
                 if chat_id in self.running_games:
-                    reply = "Game still running..."
+                    url = self.running_games[chat_id][-1]
+                    reply = "Relatiert.\n*Game still running...*"
+                    relatiert = url = self.running_games[chat_id][-2]
+                    self.bot.sendMessage(chat_id,reply,parse_mode="Markdown",reply_to_message_id=relatiert)
                 else:
                     index = random.randint(0,len(self.locations)-1)
                     self.running_games[chat_id] = self.locations[index].split(";")
                     self.running_games_guesses[chat_id] = {} #each from_id has an own dict
                     url = self.running_games[chat_id][-1]
                     reply = "*New game started*... Guess, where this picture was taken: {}".format(url)
-                    self.bot.sendMessage(chat_id,reply,parse_mode="Markdown")
+                    sent_message_id = self.bot.sendMessage(chat_id,reply,parse_mode="Markdown").get('message_id',0)
+                    self.running_games[chat_id].insert(-1,sent_message_id)
                     #print(self.running_games[chat_id][-1])
                     #self.bot.sendPhoto(chat_id,self.running_games[chat_id][-1])
             elif re.search(r'^(?:/|!)lscores$', text):
@@ -121,9 +129,10 @@ class location:
                                 self.scoreboard[chat_id][guesser_id]['score'] -= 1
                                 guesser_score-=1
                             self.scoreboard[chat_id][guesser_id]['times']+=1 #increment 1 for each game played
-                            reply+="{0}: *{1:.2f}* km (scored *{2}*)\n".format(guesser_name,key,guesser_score)
+                            self.scoreboard[chat_id][guesser_id]['avg']=self.scoreboard[chat_id][guesser_id]['score']*1.0/self.scoreboard[chat_id][guesser_id]['times']
+                            reply+="{0}: *{1:.4f}* km (scored *{2}*)\n".format(guesser_name,key,guesser_score)
                         else:
-                            reply+="{0}: *{1:.2f}* km\n".format(guesser_name,key)
+                            reply+="{0}: *{1:.4f}* km\n".format(guesser_name,key)
                     self.bot.sendMessage(chat_id,reply,parse_mode="Markdown")
                     self.bot.sendLocation(chat_id,dist_target[0],dist_target[1])
                     self.save_scores(self.scoreboard_name)
@@ -141,8 +150,14 @@ class location:
                             name = "{} {}".format(fname,lname)
                         #print(name)
                         if from_id not in self.running_games_guesses[chat_id]:
+                            voted_so_far = []
+                            for person in self.running_games_guesses[chat_id]:
+                                voted_so_far.append(self.running_games_guesses[chat_id][person]['name'])
                             self.running_games_guesses[chat_id][from_id] = {"name":name,"lat":lat,"lon":lon, "from_id":str(from_id)} #using from_id, so namechanges do not matter
-                            self.bot.sendMessage(chat_id,"Thanks for your guess, {}!".format(name))
+                            if len(voted_so_far)>0:
+                                self.bot.sendMessage(chat_id,"Thanks for your guess, {}!\nI received {} guess{} so far: {}.".format(name,len(voted_so_far),"" if len(voted_so_far)==1 else "es",", ".join(voted_so_far)))
+                            else:
+                                self.bot.sendMessage(chat_id,"Thanks for your guess, {}!\nThis was the first guess.".format(name))
 
                         #print(self.running_games_guesses[chat_id][from_id])
 

@@ -39,10 +39,11 @@ class log:
             with gzip.open("{}.gz".format(os.path.join(self.logdir,str(chat_id))),"at") as fw:
                 fw.write("{}\n".format(json.dumps(msg.raw_msg)))
 
-            if re.search(r'^(?:/|!)undelete ', text) and int(from_id) == int(self.overseer): # undelete messages
+            if re.search(r'^(?:/|!)undelete ', text):# and int(from_id) == int(self.overseer): # undelete messages
                 try:
                     number = int(text.split(" ",1)[1])
-                except:
+                except Exception as e:
+                    print(e)
                     continue
                 self.bot.forwardMessage(chat_id,chat_id,self.message_ids[chat_id][-number])
 
