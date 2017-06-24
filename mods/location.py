@@ -71,7 +71,13 @@ class location:
                 reply=""
                 if chat_id in self.running_games:
                     url = self.running_games[chat_id][-1]
-                    reply = "Relatiert.\n*Game still running...*"
+                    voted_so_far = []
+                    for person in self.running_games_guesses[chat_id]:
+                        voted_so_far.append(self.running_games_guesses[chat_id][person]['name'])
+                    voted_so_far_s=""
+                    if len(voted_so_far)>0:
+                        voted_so_far_s = "\nVoted so far: {}".format(", ".join(voted_so_far))
+                    reply = "Relatiert.\n*Game still running...*"+voted_so_far_s
                     relatiert = url = self.running_games[chat_id][-2]
                     self.bot.sendMessage(chat_id,reply,parse_mode="Markdown",reply_to_message_id=relatiert)
                 else:
