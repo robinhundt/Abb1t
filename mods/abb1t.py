@@ -85,8 +85,8 @@ class abb1t:
                 msg = Msg(json.loads(msg_line))
                 text=msg.get_text()
                 chat_id=msg.get_chat_id()
-                if (key != chat_id):
-                    input("Error in your logfile!")
+                #if (key != chat_id):
+                #    input("Error in your logfile!")
                 sent_id=msg.get_sent_id()
                 if text and text[0] not in ["/","!"]  and msg.get_edit_date()==0 and not self.is_blacklisted(text) and (not self.find_name(text)) and chat_id and sent_id: #sadly, @like will come through
                     if sent_id == prev_id:
