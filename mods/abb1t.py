@@ -29,7 +29,11 @@ class abb1t:
 
     def generate_answer(self, msg_text, chat_id):
         minimum_index=[1-(10**(-5)),-1] # min value / minimum index
-        t=self.vectorizer[chat_id].transform([msg_text]).toarray()[0]
+        if chat_id in self.vectorizer:
+            t=self.vectorizer[chat_id].transform([msg_text]).toarray()[0]
+        else:
+            reply=""
+            return
         for i,t2 in enumerate(self.mat[chat_id].toarray()):
             w=cosine(t,t2)
             if abs(w)<=minimum_index[0]:
@@ -104,7 +108,11 @@ class abb1t:
             chat_type=msg.get_chat_type()
             msg_text=msg.get_text().lower()
             if self.find_name(msg_text) and chat_id and chat_type!="private":
-                reply = self.generate_answer(self.replace_name(msg_text),chat_id)
+                reply=""
+                try:
+                    reply = self.generate_answer(self.replace_name(msg_text),chat_id)
+                except:
+                    pass
                 if reply:
                     self.bot.sendMessage(chat_id,reply,reply_to_message_id= msg.get_message_id())
 
