@@ -131,6 +131,7 @@ def main(args):
     whitelist="{}"
     try:
         whitelist=config[args.section]["whitelist"]
+        whitelist=open(whitelist).read()
         logging.debug(" -- using whitelist: {}".format(whitelist))
     except KeyError:
         config.set(args.section,"whitelist",whitelist)
