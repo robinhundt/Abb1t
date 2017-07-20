@@ -89,8 +89,8 @@ class abb1t:
                 msg = Msg(json.loads(msg_line))
                 text=msg.get_text()
                 chat_id=msg.get_chat_id()
-                #if (key != chat_id):
-                #    input("Error in your logfile!")
+                if (key != chat_id):
+                    input("Error in your logfile (key {} / chat {})!".format(key,chat_id))
                 sent_id=msg.get_sent_id()
                 if text and text[0] not in ["/","!"]  and msg.get_edit_date()==0 and not self.is_blacklisted(text) and (not self.find_name(text)) and chat_id and sent_id: #sadly, @like will come through
                     if sent_id == prev_id:
@@ -99,7 +99,8 @@ class abb1t:
                         self.speech[key][0].append(text)
                         self.speech[key][1].append(sent_id)
                     prev_id = sent_id
-            self.mat[key]=self.vectorizer[key].fit_transform(self.speech[key][0])
+            if self.speech[key][0]:
+                self.mat[key]=self.vectorizer[key].fit_transform(self.speech[key][0])
 
     def run(self):
         while 1: 
