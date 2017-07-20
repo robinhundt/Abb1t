@@ -66,6 +66,7 @@ class location:
             msg=self.queue_in.get() # get() is blocking
             chat_id=str(msg.get_chat_id())
             from_id=msg.get_from_id()
+            msg_id=int(msg.get_message_id())
             text = msg.get_text().lower()
             if re.search(r'^(?:/|!)lgame$', text):
                 reply=""
@@ -160,6 +161,10 @@ class location:
                             for person in self.running_games_guesses[chat_id]:
                                 voted_so_far.append(self.running_games_guesses[chat_id][person]['name'])
                             self.running_games_guesses[chat_id][from_id] = {"name":name,"lat":lat,"lon":lon, "from_id":str(from_id)} #using from_id, so namechanges do not matter
+                            try:
+                                self.bot.deleteMessage((chat_id,msg_id))
+                            except Exception as e:
+                                print("[LGAME] Seems like i don't have permissions to delete messages: {}".format(e))
                             if len(voted_so_far)>0:
                                 self.bot.sendMessage(chat_id,"Thanks for your guess, {}!\nI received {} guess{} so far: {}.".format(name,len(voted_so_far),"" if len(voted_so_far)==1 else "es",", ".join(voted_so_far)))
                             else:
