@@ -54,7 +54,7 @@ class location:
                     print(r)
                     #r = d[d.keys()[0]]
                     if 'dist_total' in r:
-                        reply+="{}: {} (played *{}* {}, average: *{:.2f}*, *{:.1f}*)\n".format(r['name'],r['score'],r['times'],"times" if r['times']!=1 else 'time',r.get('avg',0.00),r['dist_total']/r['dist_times']))
+                        reply+="{}: {} (played *{}* {}, average: *{:.2f}*, *{:.1f}*)\n".format(r['name'],r['score'],r['times'],"times" if r['times']!=1 else 'time',r.get('avg',0.00),r['dist_total']/r['dist_times'])
                     else:
                         reply+="{}: {} (played *{}* {}, average: *{:.2f}*)\n".format(r['name'],r['score'],r['times'],"times" if r['times']!=1 else 'time',r.get('avg',0.00))
                 return reply
