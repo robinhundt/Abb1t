@@ -53,7 +53,10 @@ class location:
                     r=d[1]
                     print(r)
                     #r = d[d.keys()[0]]
-                    reply+="{}: {} (played *{}* {}, average: *{:.2f}*)\n".format(r['name'],r['score'],r['times'],"times" if r['times']!=1 else 'time',r.get('avg',0.00))
+                    if 'dist_total' in r:
+                        reply+="{}: {} (played *{}* {}, average: *{:.2f}*, *{:.1f}*)\n".format(r['name'],r['score'],r['times'],"times" if r['times']!=1 else 'time',r.get('avg',0.00),r['dist_total']/r['dist_times']))
+                    else:
+                        reply+="{}: {} (played *{}* {}, average: *{:.2f}*)\n".format(r['name'],r['score'],r['times'],"times" if r['times']!=1 else 'time',r.get('avg',0.00))
                 return reply
             except Exception as e:
                 print(e,"... error")
@@ -105,7 +108,7 @@ class location:
                     for guesser in self.running_games_guesses[chat_id]:
                         #print(guesser, self.running_games_guesses[chat_id][guesser])
                         dist_guess = (self.running_games_guesses[chat_id][guesser]['lat'],self.running_games_guesses[chat_id][guesser]['lon'])
-                        kilometers = vincenty(dist_target,dist_guess).meters / 1000.0
+                        kilometers = (vincenty(dist_target,dist_guess).meters / 1000.0)+random.random()/10000.0
                         #print(kilometers)
                         name = self.running_games_guesses[chat_id][guesser]['name']
                         from_id_guess = self.running_games_guesses[chat_id][guesser]['from_id']
@@ -137,6 +140,12 @@ class location:
                                 guesser_score-=1
                             self.scoreboard[chat_id][guesser_id]['times']+=1 #increment 1 for each game played
                             self.scoreboard[chat_id][guesser_id]['avg']=self.scoreboard[chat_id][guesser_id]['score']*1.0/self.scoreboard[chat_id][guesser_id]['times']
+                            if 'dist_total' not in self.scoreboard[chat_id][guesser_id]:
+                                self.scoreboard[chat_id][guesser_id]['dist_total']=0
+                            self.scoreboard[chat_id][guesser_id]['dist_total']+=key
+                            if 'dist_times' not in self.scoreboard[chat_id][guesser_id]:
+                                self.scoreboard[chat_id][guesser_id]['dist_times']=0
+                            self.scoreboard[chat_id][guesser_id]['dist_times']+=1
                             reply+="{0}: *{1:.4f}* km (scored *{2}*)\n".format(guesser_name,key,guesser_score)
                         else:
                             reply+="{0}: *{1:.4f}* km\n".format(guesser_name,key)
