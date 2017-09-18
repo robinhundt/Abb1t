@@ -94,8 +94,8 @@ class mydealz:
             try:
                 if self.chat_ids: # refresh only if someone needs the freebie...
                     freebies = []
-                    temperatures = self.get_xpath(mydealz.url,"//strong[contains(@class,'vote-temp tGrid-cell vAlign--all-m text--b')]")
-                    for a,temp in zip(self.get_xpath(mydealz.url,'//*[@class="vwo-thread-title cept-tt linkPlain space--r-1 space--v-1"]'),temperatures):
+                    temperatures = self.get_xpath(mydealz.url,"//strong[contains(@class,'vote-temp tGrid-cell vAlign--all-m')]")
+                    for a,temp in zip(self.get_xpath(mydealz.url,'//*[@class="cept-tt thread-link linkPlain space--r-1 space--v-1"]'),temperatures):
                         if int(temp.text[:-1])>=mydealz.min_temp:
                             freebies.append(a.text)
                             if self.freebies and a.text not in self.freebies: #set, and new freebie
