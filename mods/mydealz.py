@@ -99,7 +99,6 @@ class mydealz:
                         if int(temp.text[:-1])>=mydealz.min_temp:
                             texttitle = a.text.strip("\n\t\r ")
                             freebies.append(texttitle)
-                            print(freebies)
                             if self.freebies and texttitle not in self.freebies: #set, and new freebie
                                 if a.attrib['href'] not in self.sent_already:
                                     for chat_id in self.chat_ids: #this is not that performant... maybe change it in the future
