@@ -110,10 +110,12 @@ class abb1t:
             msg_text=msg.get_text().lower()
             if self.find_name(msg_text) and chat_id and chat_type!="private":
                 reply=""
+                #if 1:
                 try:
+                    self.bot.sendChatAction(chat_id,"typing")
                     reply = self.generate_answer(self.replace_name(msg_text),chat_id)
-                except:
-                    pass
+                except Exception as e:
+                    print("Abb1t: {}".format(e))
                 if reply:
                     self.bot.sendMessage(chat_id,reply,reply_to_message_id= msg.get_message_id())
 
