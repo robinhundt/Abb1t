@@ -13,7 +13,7 @@ import time
 import os
 
 class mydealz:
-    url = "https://www.mydealz.de/freebies"
+    url = "https://www.mydealz.de/gruppe/freebies"
     try:
         min_temp = int(open("./mydealz/temperature").read())
     except:
@@ -94,21 +94,27 @@ class mydealz:
             try:
                 if self.chat_ids: # refresh only if someone needs the freebie...
                     freebies = []
-                    temperatures = self.get_xpath(mydealz.url,"//strong[contains(@class,'vote-temp space--r-1')]")
-                    for a,temp in zip(self.get_xpath(mydealz.url,'//*[contains(@class,"cept-tt thread-link linkPlain space--r-1")]'),temperatures):
-                        if int(temp.text[:-1])>=mydealz.min_temp:
-                            texttitle = a.text.strip("\n\t\r ")
+                    temperatures = self.get_xpath(mydealz.url,"//span[contains(@class,'vote-temp vote-temp--burn') or contains(@class,'vote-temp vote-temp--hot') or contains(@class,'space--h-2 text--b text--color-grey')]")# or contains(@class,'space--h-2 text--b text--color-grey')
+                    tempdegree = []
+                    for t in temperatures:
+                        if "°" in t.text: #Autohot! may be disregarded
+                            tempdegree.append(t.text.strip("\t\x0a\x09 "))
+                    temperatures = tempdegree
+                    for a,temp in zip(self.get_xpath(mydealz.url,'//a[@class="cept-tt thread-link linkPlain space--r-1 size--all-s size--fromW3-m"]'),temperatures):
+                        if int(temp[:-1])>=mydealz.min_temp:
+                            texttitle = a.text.strip("\n\t\r\x09 ")
                             freebies.append(texttitle)
                             if self.freebies and texttitle not in self.freebies: #set, and new freebie
                                 if a.attrib['href'] not in self.sent_already:
                                     for chat_id in self.chat_ids: #this is not that performant... maybe change it in the future
                                         self.sent_already.append(a.attrib['href'])
-                                        self.bot.sendMessage(chat_id, "New mydealz post (*{}*): *{}* [»here«]({})".format(temp.text,a.text,a.attrib['href']), parse_mode="Markdown")
+                                        self.bot.sendMessage(chat_id, "New mydealz post (*{}*):\n*{}* [»here«]({})".format(temp,a.text.strip("\n\t\r\x09 "),a.attrib['href']), parse_mode="Markdown")
                     self.freebies=freebies
                 time.sleep(300) # sleep 5min
                 if time.time()-self.sent_already[0]>24*3600: #deals may be resend each 24h
                     self.sent_already=[time.time()]
-            except:
+            except Exception as e:
+                print(e)
                 pass
 
     @staticmethod
