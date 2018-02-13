@@ -46,7 +46,7 @@ class reminder:
         curtime = time.time()
         for t in self.reminders[chat_id]:
             t_ = int(t)
-            ret+="\n{}h{}m{}s - `{}`".format(int((t_-curtime)//3600)%60,int((t_-curtime)//60)%60,int(t_-curtime)%60,", ".join(self.reminders[chat_id][t]))
+            ret+="\n{}h{}m{}s - `{}`".format(int((t_-curtime)//3600),int((t_-curtime)//60)%60,int(t_-curtime)%60,", ".join(self.reminders[chat_id][t]))
             remind_for = self.reminders[chat_id][t]
         if ret:
             ret="*Reminders set for this chat*"+ret
