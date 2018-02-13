@@ -44,11 +44,10 @@ class reminder:
     def output_reminders(self,chat_id):
         ret = ""
         curtime = time.time()
-        for chat in self.reminders:
-            for t in self.reminders[chat]:
-                t_ = int(t)
-                ret+="\n{}h{}m{}s - `{}`".format(int((t_-curtime)//3600)%60,int((t_-curtime)//60)%60,int(t_-curtime)%60,", ".join(self.reminders[chat][t]))
-                remind_for = self.reminders[chat][t]
+        for t in self.reminders[chat_id]:
+            t_ = int(t)
+            ret+="\n{}h{}m{}s - `{}`".format(int((t_-curtime)//3600)%60,int((t_-curtime)//60)%60,int(t_-curtime)%60,", ".join(self.reminders[chat][t]))
+            remind_for = self.reminders[chat][t]
         if ret:
             ret="*Reminders set for this chat*"+ret
         return ret
