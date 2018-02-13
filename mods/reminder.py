@@ -41,6 +41,18 @@ class reminder:
         except Exception as e:
             print("Write reminders exception: {}".format(e))
 
+    def output_reminders(self,chat_id):
+        ret = ""
+        curtime = time.time()
+        for chat in self.reminders:
+            for t in self.reminders[chat]:
+                t_ = int(t)
+                ret+="\n{}h{}m{}s - `{}`".format(int((t_-curtime)//3600)%60,int((t_-curtime)//60)%60,int(t_-curtime)%60,", ".join(self.reminders[chat][t]))
+                remind_for = self.reminders[chat][t]
+        if ret:
+            ret="*Reminders set for this chat*"+ret
+        return ret
+
     def find_next(self):
         lowest_time = -1
         for chat in self.reminders:
@@ -86,7 +98,12 @@ class reminder:
             msg_id=int(msg.get_message_id())
             text = msg.get_text().lower()
             max_length = 300
-            if re.search(r'^(?:/|!)remind',text):
+            if re.search(r'^(?:/|!)reminders$',text):
+                reply = self.output_reminders(chat_id)
+                if not reply:
+                    reply = "No reminders set."
+                self.bot.sendMessage(chat_id,reply,parse_mode="Markdown")
+            elif re.search(r'^(?:/|!)remind',text):
                 ret = re.search(r'^(?:/|!)remind (\S+|\d) ([^\t\n\r\f\v]+)$', text) #*_\[\]
                 if ret:
                     if len(text)>max_length:
