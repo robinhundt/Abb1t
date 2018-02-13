@@ -13,7 +13,7 @@ import datetime
 class reminder:
     def __init__(self, bot):
         self.bot = bot.bot
-        self.description = "*/remind <time> <text>* - set reminder at specified time; time has to be in the following format: dd.mm.yyyy-HH.MM, unix timestamp _or_  seconds."
+        self.description = "*/remind <time> <text>* - set reminder at specified time; time has to be in the following format: dd.mm.yyyy-HH:MM, unix timestamp _or_  seconds."
         self.queue_in=Queue()
         #self.queue_out=Queue()
         thread.start_new_thread(self.run,())
@@ -46,8 +46,8 @@ class reminder:
         curtime = time.time()
         for t in self.reminders[chat_id]:
             t_ = int(t)
-            ret+="\n{}h{}m{}s - `{}`".format(int((t_-curtime)//3600)%60,int((t_-curtime)//60)%60,int(t_-curtime)%60,", ".join(self.reminders[chat][t]))
-            remind_for = self.reminders[chat][t]
+            ret+="\n{}h{}m{}s - `{}`".format(int((t_-curtime)//3600)%60,int((t_-curtime)//60)%60,int(t_-curtime)%60,", ".join(self.reminders[chat_id][t]))
+            remind_for = self.reminders[chat_id][t]
         if ret:
             ret="*Reminders set for this chat*"+ret
         return ret
